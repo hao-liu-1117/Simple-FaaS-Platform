@@ -13,13 +13,13 @@ TEST(FunctionTest, PutAndGetTest) {
   std::vector<std::string> comp_arr;
   int arr_len = 10;
   for (int i = 0; i < arr_len; i++) {
-    store.Put(0, "value" + std::to_string(i));
+    store.Put("key" + std::to_string(0), "value" + std::to_string(i));
     comp_arr.push_back("value" + std::to_string(i));
   }
 
   std::vector<std::string> store_arr;
 
-  std::unordered_set<std::string> store_set = store.Get(0);
+  std::unordered_set<std::string> store_set = store.Get("key" + std::to_string(0));
   for (auto &str:store_set) {
     store_arr.push_back(str);
   }
@@ -30,7 +30,7 @@ TEST(FunctionTest, PutAndGetTest) {
     ASSERT_EQ(store_arr[i], comp_arr[i]); // expected: ["value0", "value1", "value2", ...]
   }
 
-  store_set = store.Get(1);
+  store_set = store.Get("key" + std::to_string(1));
   store_arr = std::vector<std::string>();
   for (auto &str:store_set) {
     store_arr.push_back(str);
@@ -47,13 +47,13 @@ TEST(FunctionTest, RemoveTest) {
   int arr_len = 10;
 
   for (int i = 0; i < arr_len; i++) {
-    store.Put(0, "value" + std::to_string(i));
+    store.Put("key" + std::to_string(0), "value" + std::to_string(i));
     comp_arr.push_back("value" + std::to_string(i));
   }
 
   std::vector<std::string> store_arr;
 
-  std::unordered_set<std::string> store_set = store.Get(0);
+  std::unordered_set<std::string> store_set = store.Get("key" + std::to_string(0));
   for (auto &str:store_set) {
     store_arr.push_back(str);
   }
@@ -64,8 +64,8 @@ TEST(FunctionTest, RemoveTest) {
     ASSERT_EQ(store_arr[i], comp_arr[i]); // expected: [0, 1, 2, ..., 9]
   }
 
-  store.Remove(0);
-  store_set = store.Get(0);
+  store.Remove("key" + std::to_string(0));
+  store_set = store.Get("key" + std::to_string(0));
   store_arr = std::vector<std::string>();
   for (auto &str:store_set) {
     store_arr.push_back(str);

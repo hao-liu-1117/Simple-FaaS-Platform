@@ -12,14 +12,14 @@ class KeyValueStore {
  public:
   explicit KeyValueStore() : map_() {}
 
-  void Put(int key, std::string value);
+  void Put(const std::string key, const std::string value);
 
-  std::unordered_set<std::string> Get(int key);
+  std::unordered_set<std::string> Get(const std::string key);
 
-  void Remove(int key);
+  void Remove(const std::string key);
 
  private:
-  std::unordered_map<int, std::unordered_set<std::string>> map_;
+  std::unordered_map<std::string, std::unordered_set<std::string>> map_;
 };
 
 #endif

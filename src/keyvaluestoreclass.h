@@ -1,27 +1,25 @@
 #ifndef KEYVALUESTORECLASS_H_
 #define KEYVALUESTORECLASS_H_
 
-#include <vector>
-#include <unordered_set>
-#include <unordered_map>
 #include <algorithm>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
+// Backend key-value store.
+// TODO: cocurrent key-value store.
 class KeyValueStore {
-public:
+ public:
+  explicit KeyValueStore() : map_() {}
 
-  explicit KeyValueStore();
+  void Put(int key, std::string value);
 
-  void put(int key, int value);
+  std::unordered_set<std::string> Get(int key);
 
-  std::unordered_set<int> get(int key);
+  void Remove(int key);
 
-  void remove(int key);
-
-  // code for better testing
-  std::vector<int> getWithOrder(int key);
-
-private:
-  std::unordered_map<int, std::unordered_set<int>> map_;
+ private:
+  std::unordered_map<int, std::unordered_set<std::string>> map_;
 };
 
 #endif

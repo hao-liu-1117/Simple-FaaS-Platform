@@ -5,6 +5,6 @@
 mkdir build
 cd build
 cmake ..
-make
+make all
 ./test/Caw_test
 ```

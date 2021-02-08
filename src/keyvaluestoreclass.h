@@ -13,13 +13,9 @@
 // in each method (except constructor) and released when finished.
 class KeyValueStore {
  public:
-  explicit KeyValueStore() : map_(), map_mutex_() {
-    map_mutex_ = new std::mutex();
-  }
+  explicit KeyValueStore() : map_(), map_mutex_() {}
 
-  virtual ~KeyValueStore() {
-    delete map_mutex_;
-  }
+  virtual ~KeyValueStore() {}
 
   // Puts value to corresponding key.
   void Put(const std::string &key, const std::string &value);
@@ -38,7 +34,7 @@ class KeyValueStore {
 
   // To support cocurrent access for key-value store, 
   // mutex is needed.
-  std::mutex *map_mutex_;
+  mutable std::mutex map_mutex_;
 };
 
 #endif

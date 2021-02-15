@@ -5,6 +5,9 @@
 mkdir build
 cd build
 cmake ..
-make all
-./test/Caw_test
+make
+
+./src/kvstore_server
+
+./src/kvstore_client
 ```

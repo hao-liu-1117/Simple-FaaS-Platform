@@ -1,7 +1,58 @@
-set(BINARY ${CMAKE_PROJECT_NAME})
+# Protobuf
+set(protobuf_MODULE_COMPATIBLE TRUE)
+find_package(Protobuf CONFIG REQUIRED)
+message(STATUS "Using protobuf ${protobuf_VERSION}")
 
-file(GLOB_RECURSE SOURCES LIST_DIRECTORIES true *.h *.cc)
+# Protobuf-compiler
+set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
 
-set(SOURCES ${SOURCES})
+# gRPC
+find_package(gRPC CONFIG REQUIRED)
+message(STATUS "Using gRPC ${gRPC_VERSION}")
+set(_GRPC_GRPCPP gRPC::grpc++)
+set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 
-add_library(${CMAKE_PROJECT_NAME}_lib STATIC ${SOURCES})
+# Proto file
+get_filename_component(kvstore_proto "keyvaluestore.proto" ABSOLUTE)
+get_filename_component(kvstore_proto_path "${kvstore_proto}" PATH)
+
+# Generated sources
+set(kvstore_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/keyvaluestore.pb.cc")
+set(kvstore_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/keyvaluestore.pb.h")
+set(kvstore_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/keyvaluestore.grpc.pb.cc")
+set(kvstore_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/keyvaluestore.grpc.pb.h")
+
+message(STATUS "current cmake dir = ${CMAKE_CURRENT_BINARY_DIR}")
+
+message(STATUS "kvstore path = ${kvstore_proto_path}")
+
+add_custom_command(
+      OUTPUT "${kvstore_proto_srcs}" "${kvstore_proto_hdrs}" "${kvstore_grpc_srcs}" "${kvstore_grpc_hdrs}"
+      COMMAND ${_PROTOBUF_PROTOC}
+      ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
+        --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+        -I "${kvstore_proto_path}"
+        --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
+        "${kvstore_proto}"
+      DEPENDS "${kvstore_proto}")
+
+# Include generated *.pb.h files
+include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+
+# Targets (client|server)
+
+# Include kvstore backend file
+set(kestore_backend "kvstoreclass.h" "kvstoreclass.cc")
+
+foreach(_target
+  kvstore_client kvstore_server)
+  add_executable(${_target} "${_target}.cc"
+    ${kvstore_proto_srcs}
+    ${kvstore_grpc_srcs}
+    "keyvaluestoreclass.cc"
+    )
+  target_link_libraries(${_target}
+    ${_REFLECTION}
+    ${_GRPC_GRPCPP}
+    ${_PROTOBUF_LIBPROTOBUF})
+endforeach()

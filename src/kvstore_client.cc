@@ -1,45 +1,63 @@
-#include <iostream>
-#include <string>
-#include <vector>
-
 #include "kvstore_client.h"
 
-bool TestPrintPairs (const std::vector<std::string> &keyarr, 
-                     const std::vector<std::string> &valarr, 
-                     const std::vector<std::string> &testarr) {
-  int len = keyarr.size();
-  if (testarr.size()!=len) {
-    std::cout << "length of key array != length of return value array!" << std::endl;
-    return false;
-  }
+bool KVStoreClient::Put (const std::string &key, const std::string &value) {
+  grpc::ClientContext context;
+  kvstore::PutRequest request;
+  kvstore::PutReply reply;
 
-  for (int i = 0; i < len; i++) {
-    if (valarr[i]!=testarr[i]) {
-      std::cout << "get wrong value using " << keyarr[i] 
-                << std::endl;
-      return false;
-    }
-    std::cout << keyarr[i] << "---" << testarr[i] << std::endl;
+  request.set_key(key);
+  request.set_value(value);
+  // Put function finished by server.
+  grpc::Status status = stub_->Put(&context, request, &reply);
+
+  if (!status.ok()) {
+    std::cout << "status error: " << status.error_message() << std::endl;
+  return false;
   }
   return true;
 }
 
-int main (int argc, char** argv) {
-  KVStoreClient client(grpc::CreateChannel("0.0.0.0:50001",
-                grpc::InsecureChannelCredentials()));
-  std::vector<std::string> keyarr, valarr;
-  for (int i = 0; i < 10; i++) {
-    keyarr.push_back("key"+std::to_string(i));
-    valarr.push_back("value"+std::to_string(i));
-    client.Put(keyarr[i], valarr[i]);
+bool KVStoreClient::Get(const std::vector<std::string> &keyarr, std::vector<std::string> &valarr) {
+  grpc::ClientContext context;
+  auto stream(stub_->Get(&context));
+
+  // Create a thread to write stream of requests.
+  std::thread writer([&stream, &keyarr]() {
+    for (const std::string &key : keyarr) {
+      kvstore::GetRequest request;
+      request.set_key(key);
+      stream->Write(request);
+    }
+    stream->WritesDone();
+  });
+
+  // Receive a stream of replies.
+  kvstore::GetReply reply;
+  while (stream->Read(&reply)) {
+    valarr.push_back(reply.value());
   }
-  std::vector<std::string> testvalarr;
-  auto success = client.Get(keyarr, testvalarr);
-  if (!success) {
-    std::cout << "KVStoreClient.Get falied" << std::endl;
-    return 1;
+  // Waiting for writer thread.
+  writer.join();
+  grpc::Status status = stream->Finish();
+
+  if (!status.ok()) {
+    std::cout << "status error: " << status.error_message() << std::endl;
+    return false;
   }
-  TestPrintPairs(keyarr, valarr, testvalarr);
-  
-  return 0;
+  return true;
+}
+
+bool KVStoreClient::Remove(const std::string &key) {
+  grpc::ClientContext context;
+  kvstore::RemoveRequest request;
+  kvstore::RemoveReply reply;
+
+  request.set_key(key);
+  grpc::Status status = stub_->Remove(&context, request, &reply);
+
+  if (!status.ok()) {
+    std::cout << "status error: " << status.error_message() << std::endl;
+    return false;
+  }
+  return true;
 }

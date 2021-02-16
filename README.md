@@ -9,5 +9,6 @@ make
 
 ./src/kvstore_server
 
-./src/kvstore_client
+# in a new terminal
+./src/kvstore_server_test
 ```

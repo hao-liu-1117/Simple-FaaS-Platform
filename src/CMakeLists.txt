@@ -1,3 +1,13 @@
+include(FetchContent)
+
+# Import glog
+FetchContent_Declare(
+  glog
+  GIT_REPOSITORY https://github.com/google/glog.git
+  GIT_TAG v0.4.0
+)
+FetchContent_MakeAvailable(glog)
+
 # Protobuf
 set(protobuf_MODULE_COMPATIBLE TRUE)
 find_package(Protobuf CONFIG REQUIRED)
@@ -26,6 +36,10 @@ message(STATUS "current cmake dir = ${CMAKE_CURRENT_BINARY_DIR}")
 
 message(STATUS "kvstore path = ${kvstore_proto_path}")
 
+# aux_source_directory(. DIR_LIB_SRCS)
+
+add_library(kvstore_lib STATIC "keyvaluestoreclass.cc")
+
 add_custom_command(
       OUTPUT "${kvstore_proto_srcs}" "${kvstore_proto_hdrs}" "${kvstore_grpc_srcs}" "${kvstore_grpc_hdrs}"
       COMMAND ${_PROTOBUF_PROTOC}
@@ -40,12 +54,8 @@ add_custom_command(
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 # Targets (client|server)
-
-# Include kvstore backend file
-set(kestore_backend "kvstoreclass.h" "kvstoreclass.cc")
-
 foreach(_target
-  kvstore_client kvstore_server)
+   kvstore_server)
   add_executable(${_target} "${_target}.cc"
     ${kvstore_proto_srcs}
     ${kvstore_grpc_srcs}
@@ -56,3 +66,10 @@ foreach(_target
     ${_GRPC_GRPCPP}
     ${_PROTOBUF_LIBPROTOBUF})
 endforeach()
+
+# test kvstore server
+find_package(GTest REQUIRED)
+
+add_executable(kvstore_server_test "kvstore_server_test.cc" ${kvstore_proto_srcs} ${kvstore_grpc_srcs} "kvstore_client.cc")
+target_link_libraries(kvstore_server_test GTest::GTest GTest::Main glog
+${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})

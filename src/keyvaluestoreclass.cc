@@ -8,7 +8,6 @@ void KeyValueStore::Put(const std::string &key, const std::string &value) {
 std::unordered_set<std::string> KeyValueStore::Get(const std::string &key) const {
   const std::lock_guard<std::mutex> lock(map_mutex_);
   std::unordered_set<std::string> res_set;
-
   // Checking existence of key is needed becasue 
   // calling method .at(key) with an invalid key 
   // would cause a std::out_of_range() exception.

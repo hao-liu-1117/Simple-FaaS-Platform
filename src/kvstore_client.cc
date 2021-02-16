@@ -1,3 +1,6 @@
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
 #include "kvstore_client.h"
 
 bool KVStoreClient::Put (const std::string &key, const std::string &value) {
@@ -11,8 +14,8 @@ bool KVStoreClient::Put (const std::string &key, const std::string &value) {
   grpc::Status status = stub_->Put(&context, request, &reply);
 
   if (!status.ok()) {
-    std::cout << "status error: " << status.error_message() << std::endl;
-  return false;
+    LOG(INFO) << "status error: " << status.error_message();
+    return false;
   }
   return true;
 }
@@ -41,7 +44,7 @@ bool KVStoreClient::Get(const std::vector<std::string> &keyarr, std::vector<std:
   grpc::Status status = stream->Finish();
 
   if (!status.ok()) {
-    std::cout << "status error: " << status.error_message() << std::endl;
+    LOG(INFO) << "status error: " << status.error_message();
     return false;
   }
   return true;
@@ -56,7 +59,7 @@ bool KVStoreClient::Remove(const std::string &key) {
   grpc::Status status = stub_->Remove(&context, request, &reply);
 
   if (!status.ok()) {
-    std::cout << "status error: " << status.error_message() << std::endl;
+    LOG(INFO) << "status error: " << status.error_message();
     return false;
   }
   return true;

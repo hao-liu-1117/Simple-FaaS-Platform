@@ -12,3 +12,7 @@ make
 # in a new terminal
 ./src/kvstore_server_test
 ```
+### Test Caw Functionality
+```
+./src/caw_test
+```

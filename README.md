@@ -14,5 +14,8 @@ make
 ```
 ### Test Caw Functionality
 ```
+./src/kvstore_server
+
+# in a new terminal
 ./src/caw_test
 ```

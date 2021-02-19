@@ -96,6 +96,7 @@ add_custom_command(
 
 # test caw functionality
 
-add_executable(caw_test "caw_test.cc" ${caw_proto_srcs} ${caw_grpc_srcs} "caw.cc" "keyvaluestoreclass.cc")
+add_executable(caw_test "caw_test.cc" ${caw_proto_srcs} ${caw_grpc_srcs} "caw.cc" 
+${kvstore_proto_srcs} ${kvstore_grpc_srcs} "keyvaluestoreclass.cc" "kvstore_client.cc") 
 target_link_libraries(caw_test GTest::GTest GTest::Main glog
 ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})

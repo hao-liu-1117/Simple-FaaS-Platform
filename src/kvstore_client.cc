@@ -22,7 +22,8 @@ bool KVStoreClient::Put (const std::string &key, const std::string &value) {
   return true;
 }
 
-bool KVStoreClient::Get(const std::vector<std::string> &keyarr, std::vector<std::string> &valarr) {
+bool KVStoreClient::Get(const std::vector<std::string> &keyarr, 
+                        std::vector<std::string> &valarr) {
   grpc::ClientContext context;
   auto stream(stub_->Get(&context));
 
@@ -52,7 +53,7 @@ bool KVStoreClient::Get(const std::vector<std::string> &keyarr, std::vector<std:
   return true;
 }
 
-bool KVStoreClient::Remove(const std::string &key) {
+bool KVStoreClient::Remove(const std::string &key){
   grpc::ClientContext context;
   kvstore::RemoveRequest request;
   kvstore::RemoveReply reply;

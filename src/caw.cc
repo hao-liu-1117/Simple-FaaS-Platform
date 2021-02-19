@@ -2,9 +2,9 @@
 
 #include "caw.h"
 
-using namespace std::chrono;
+#include "prefix.h"
 
-namespace cawfunc {
+using namespace std::chrono;
 
 // KVStore instances for maintaining data.
 KeyValueStore users;
@@ -13,24 +13,27 @@ KeyValueStore following, follower;
 KeyValueStore be_replied;
 // Store caws in a map. Key is caw_id and value is content of caw.
 std::unordered_map<std::string, caw::Caw> cawmap;
+namespace cawfunc {
 
-bool RegisterUser(const caw::RegisteruserRequest &request) {
+bool RegisterUser(const caw::RegisteruserRequest &request,
+                           KVStoreClient &client) {
   std::string username = request.username();
-  // check if user already exists.
-  if (UserExists(username)) {
+  // Check if user already exists.
+  if (UserExists(username, client)) {
     return false;
   }
-  // use kvstore as a set.
-  users.Put(username, username);
+  // Use kvstore as a set.
+  client.Put(prefix::kUser + username, username);
   return true;
 }
 
-caw::Caw Caw(const caw::CawRequest &request) {
+caw::Caw Caw(const caw::CawRequest &request,
+             KVStoreClient &client) {
   std::string username = request.username();
   std::string text = request.text();
   std::string parent_id = request.parent_id();
   // Assign caw_id as current count of caws.
-  std::string id = std::to_string(cawmap.size());
+  std::string id = GetNextCawId(client);
 
   seconds secs = duration_cast<seconds>(
     system_clock::now().time_since_epoch()
@@ -39,10 +42,14 @@ caw::Caw Caw(const caw::CawRequest &request) {
     system_clock::now().time_since_epoch()
   );
   
-  // Notify which caw get a reply.
-  if (!parent_id.empty()) {
-    be_replied.Put(parent_id, id);
-  }
+  // store caw data into kvstore.
+  // caw_id has been stored by cawfunc::GetNextCawId();
+  client.Put(prefix::kCawUser + id, username);
+  client.Put(prefix::kCawText + id, text);
+  client.Put(prefix::kCawParentId + id, parent_id);
+  client.Put(prefix::kCawSonId + parent_id, id);
+  client.Put(prefix::kCawSeconds + id, std::to_string(secs.count()));
+  client.Put(prefix::kCawUSeconds + id, std::to_string(usecs.count()));
   
   // Pack those info to Caw and return.
   caw::Caw result;
@@ -53,54 +60,146 @@ caw::Caw Caw(const caw::CawRequest &request) {
   result.mutable_timestamp()->set_seconds(secs.count());
   result.mutable_timestamp()->set_useconds(usecs.count());
   
-  cawmap[id] = result;
   return result;
 }
 
-bool Follow(const caw::FollowRequest &request) {
+bool Follow(const caw::FollowRequest &request,
+            KVStoreClient &client) {
   std::string username = request.username();
   std::string to_follow = request.to_follow();
   // check if username and to_follow exists.
-  if (!UserExists(username) || !UserExists(to_follow)) {
+  if (!UserExists(username, client) || !UserExists(to_follow, client)) {
     return false;
   }
-  following.Put(username, to_follow);
-  follower.Put(to_follow, username);
+  client.Put(prefix::kFollowing + username, to_follow);
+  client.Put(prefix::kFollowers + to_follow, username);
   return true;
 }
 
-caw::ReadReply Read(const caw::ReadRequest &request) {
-  // TODO.
-  /*
-    I'm not sure what to return with the given caw_id.
-    Should I return caw itself and all the reply of this caw?
-  */
- caw::ReadReply reply;
- return reply;
+caw::ReadReply Read(const caw::ReadRequest &request,
+                    KVStoreClient &client) {
+  caw::ReadReply reply;
+  ReadThread(request.caw_id(), reply, client);
+  return reply;
 }
 
-caw::ProfileReply Profile(const caw::ProfileRequest & request) {
+caw::ProfileReply Profile(const caw::ProfileRequest & request,
+                          KVStoreClient &client) {
   std::string username = request.username();
-
+  // keyarr/valarr used by kvstore client to fetch data into valarr.
+  std::vector<std::string> keyarr, valarr;
   caw::ProfileReply reply;
-  auto follower_set = follower.Get(username);
-  for (auto u_name : follower_set) {
+  // Get followers.
+  keyarr.push_back(prefix::kFollowers + username);
+  client.Get(keyarr, valarr);
+  for (const auto &u_name : valarr) {
     reply.add_followers(u_name);
   }
 
-  auto following_set = following.Get(username);
-  for (auto u_name : following_set) {
+  keyarr.clear();
+  valarr.clear();
+  // Get following.
+  keyarr.push_back(prefix::kFollowing + username);
+  client.Get(keyarr, valarr);
+  for (const auto &u_name : valarr) {
     reply.add_following(u_name);
   }
 
   return reply;
 }
 
-bool UserExists(const std::string &username) {
-  if (users.Get(username).empty()) {
+bool UserExists(const std::string &username, KVStoreClient &client) {
+  std::vector<std::string> keyarr, valarr;
+  keyarr.push_back(prefix::kUser + username);
+  client.Get(keyarr, valarr);
+  if (valarr.empty()) {
     return false;
   }
   return true;
 }
 
-} // namespace cawfunc
+std::string GetNextCawId(KVStoreClient &client) {
+  std::vector<std::string> keyarr, valarr;
+  keyarr.push_back(prefix::kCawCount);
+  client.Get(keyarr, valarr);
+  if (valarr.empty()) {
+    // first caw would be assigned caw_id = 0, the next should be 1.
+    client.Put(prefix::kCawCount, "1");
+    client.Put(prefix::kCawId + "0", "0");
+    return "0";
+  }
+  // caw_id stored in valarr
+  std::string caw_id = valarr[0];
+  int caw_id_int = std::stoi(caw_id);
+  caw_id_int++;
+  client.Remove(prefix::kCawCount);
+  client.Put(prefix::kCawCount, std::to_string(caw_id_int));
+  client.Put(prefix::kCawId + caw_id, caw_id);
+  return caw_id;
+}
+
+void ReadThread(const std::string &caw_id, caw::ReadReply &reply, 
+                KVStoreClient &client) {
+  // Put current caw into reply.
+  caw::Caw cur_caw = GetCawWithCawId(caw_id, client);
+  caw::Caw *put_caw = reply.add_caws();
+  // Copy fields to reply
+  put_caw->set_username(cur_caw.username());
+  put_caw->set_text(cur_caw.text());
+  put_caw->set_id(cur_caw.id());
+  put_caw->set_parent_id(cur_caw.parent_id());
+  put_caw->mutable_timestamp()->set_seconds(
+    cur_caw.mutable_timestamp()->seconds()
+  );
+  put_caw->mutable_timestamp()->set_useconds(
+    cur_caw.mutable_timestamp()->useconds()
+  );
+  // If other caws replied to this one, 
+  // put them into caw::ReadReply recursively.
+  std::vector<std::string> keyarr, valarr;
+  keyarr.push_back(prefix::kCawSonId + caw_id);
+  client.Get(keyarr, valarr);
+  for (const auto &son_id : valarr) {
+    ReadThread(son_id, reply, client);
+  }
+}
+
+caw::Caw GetCawWithCawId(const std::string &caw_id, 
+                         KVStoreClient &client) {
+  caw::Caw cur_caw;
+  // Get caw data from kvstore
+  std::vector<std::string> keyarr, valarr;
+  // Get username
+  keyarr.push_back(prefix::kCawUser + caw_id);
+  client.Get(keyarr, valarr);
+  cur_caw.set_username(valarr[0]);
+  // Get text
+  valarr.clear();
+  keyarr[0] = prefix::kCawText + caw_id;
+  client.Get(keyarr, valarr);
+  cur_caw.set_text(valarr[0]);
+  // Get id
+  cur_caw.set_id(caw_id);
+  // Get parent_id
+  valarr.clear();
+  keyarr[0] = prefix::kCawParentId + caw_id;
+  client.Get(keyarr, valarr);
+  cur_caw.set_parent_id(valarr[0]);
+  // Get timestamp
+  valarr.clear();
+  keyarr[0] = prefix::kCawSeconds + caw_id;
+  client.Get(keyarr, valarr);
+  std::string::size_type sz = 0;
+  long long ll = std::stoll(valarr[0], &sz, 0);
+  cur_caw.mutable_timestamp()->set_seconds(ll);
+  valarr.clear();
+  keyarr[0] = prefix::kCawUSeconds + caw_id;
+  client.Get(keyarr, valarr);
+  sz = 0;
+  ll = std::stoll(valarr[0], &sz, 0);
+  cur_caw.mutable_timestamp()->set_useconds(ll);
+
+  return cur_caw;
+}
+
+} // namesapce cawfunc

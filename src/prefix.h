@@ -11,6 +11,7 @@ namespace prefix {
   const std::string kCawId = std::string("caw_id_"); // caw_id with prefix - caw_id (check if caw_id exists)
   // kCawCount is not a prefix but a individual key.
   const std::string kCawCount = std::string("caw_count"); // kCawCount - number of current caws.
+  const std::string kCawInitId = std::string("0"); // first caw_id = 0
   const std::string kCawUser = std::string("cawuser_"); // (cawuser_ + caw_id) -- username
   const std::string kCawText = std::string("cawtext_"); // (cawtext_ + caw_id) -- text
   const std::string kCawParentId = std::string("caw_parent_id_"); // (caw_parent_id_ + caw_id) -- caw_id

@@ -4,8 +4,6 @@
 
 #include "prefix.h"
 
-using namespace std::chrono;
-
 // KVStore instances for maintaining data.
 KeyValueStore users;
 KeyValueStore following, follower;
@@ -16,7 +14,7 @@ std::unordered_map<std::string, caw::Caw> cawmap;
 namespace cawfunc {
 
 bool RegisterUser(const caw::RegisteruserRequest &request,
-                           KVStoreClient &client) {
+                  KVStoreClient &client) {
   std::string username = request.username();
   // Check if user already exists.
   if (UserExists(username, client)) {
@@ -35,11 +33,11 @@ caw::Caw Caw(const caw::CawRequest &request,
   // Assign caw_id as current count of caws.
   std::string id = GetNextCawId(client);
 
-  seconds secs = duration_cast<seconds>(
-    system_clock::now().time_since_epoch()
+  std::chrono::seconds secs = std::chrono::duration_cast<std::chrono::seconds>(
+    std::chrono::system_clock::now().time_since_epoch()
   );
-  microseconds usecs = duration_cast<microseconds>(
-    system_clock::now().time_since_epoch()
+  std::chrono::microseconds usecs = std::chrono::duration_cast<std::chrono::microseconds>(
+    std::chrono::system_clock::now().time_since_epoch()
   );
   
   // store caw data into kvstore.
@@ -122,12 +120,6 @@ std::string GetNextCawId(KVStoreClient &client) {
   std::vector<std::string> keyarr, valarr;
   keyarr.push_back(prefix::kCawCount);
   client.Get(keyarr, valarr);
-  if (valarr.empty()) {
-    // first caw would be assigned caw_id = 0, the next should be 1.
-    client.Put(prefix::kCawCount, "1");
-    client.Put(prefix::kCawId + "0", "0");
-    return "0";
-  }
   // caw_id stored in valarr
   std::string caw_id = valarr[0];
   int caw_id_int = std::stoi(caw_id);

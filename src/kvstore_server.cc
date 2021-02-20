@@ -7,6 +7,11 @@
 
 #include "kvstore_server.h"
 
+KVStoreService::KVStoreService() {
+  // Init caw count in kvstore backend
+  storeinstance_.Put(prefix::kCawCount, prefix::kCawInitId);
+}
+
 grpc::Status KVStoreService::Put(grpc::ServerContext* context, 
                                  const kvstore::PutRequest* request, 
                                  kvstore::PutReply* response) {

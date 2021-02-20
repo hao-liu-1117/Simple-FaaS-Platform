@@ -42,12 +42,16 @@ caw::Caw Caw(const caw::CawRequest &request,
   
   // store caw data into kvstore.
   // caw_id has been stored by cawfunc::GetNextCawId();
+  /*
   client.Put(prefix::kCawUser + id, username);
   client.Put(prefix::kCawText + id, text);
   client.Put(prefix::kCawParentId + id, parent_id);
-  client.Put(prefix::kCawSonId + parent_id, id);
   client.Put(prefix::kCawSeconds + id, std::to_string(secs.count()));
   client.Put(prefix::kCawUSeconds + id, std::to_string(usecs.count()));
+  */
+
+  // store reply caw_id for parent caw.
+  client.Put(prefix::kCawSonId + parent_id, id);
   
   // Pack those info to Caw and return.
   caw::Caw result;
@@ -57,7 +61,11 @@ caw::Caw Caw(const caw::CawRequest &request,
   result.set_parent_id(parent_id);
   result.mutable_timestamp()->set_seconds(secs.count());
   result.mutable_timestamp()->set_useconds(usecs.count());
-  
+
+  std::string result_str;
+  // serialize caw to result_str and store
+  result.SerializeToString(&result_str);
+  client.Put(prefix::kCawId + id, result_str);
   return result;
 }
 
@@ -126,7 +134,6 @@ std::string GetNextCawId(KVStoreClient &client) {
   caw_id_int++;
   client.Remove(prefix::kCawCount);
   client.Put(prefix::kCawCount, std::to_string(caw_id_int));
-  client.Put(prefix::kCawId + caw_id, caw_id);
   return caw_id;
 }
 
@@ -135,6 +142,7 @@ void ReadThread(const std::string &caw_id, caw::ReadReply &reply,
   // Put current caw into reply.
   caw::Caw cur_caw = GetCawWithCawId(caw_id, client);
   caw::Caw *put_caw = reply.add_caws();
+  
   // Copy fields to reply
   put_caw->set_username(cur_caw.username());
   put_caw->set_text(cur_caw.text());
@@ -146,6 +154,7 @@ void ReadThread(const std::string &caw_id, caw::ReadReply &reply,
   put_caw->mutable_timestamp()->set_useconds(
     cur_caw.mutable_timestamp()->useconds()
   );
+  
   // If other caws replied to this one, 
   // put them into caw::ReadReply recursively.
   std::vector<std::string> keyarr, valarr;
@@ -161,35 +170,11 @@ caw::Caw GetCawWithCawId(const std::string &caw_id,
   caw::Caw cur_caw;
   // Get caw data from kvstore
   std::vector<std::string> keyarr, valarr;
-  // Get username
-  keyarr.push_back(prefix::kCawUser + caw_id);
+  keyarr.push_back(prefix::kCawId + caw_id);
   client.Get(keyarr, valarr);
-  cur_caw.set_username(valarr[0]);
-  // Get text
-  valarr.clear();
-  keyarr[0] = prefix::kCawText + caw_id;
-  client.Get(keyarr, valarr);
-  cur_caw.set_text(valarr[0]);
-  // Get id
-  cur_caw.set_id(caw_id);
-  // Get parent_id
-  valarr.clear();
-  keyarr[0] = prefix::kCawParentId + caw_id;
-  client.Get(keyarr, valarr);
-  cur_caw.set_parent_id(valarr[0]);
-  // Get timestamp
-  valarr.clear();
-  keyarr[0] = prefix::kCawSeconds + caw_id;
-  client.Get(keyarr, valarr);
-  std::string::size_type sz = 0;
-  long long ll = std::stoll(valarr[0], &sz, 0);
-  cur_caw.mutable_timestamp()->set_seconds(ll);
-  valarr.clear();
-  keyarr[0] = prefix::kCawUSeconds + caw_id;
-  client.Get(keyarr, valarr);
-  sz = 0;
-  ll = std::stoll(valarr[0], &sz, 0);
-  cur_caw.mutable_timestamp()->set_useconds(ll);
+  if (!valarr.empty()) {
+    cur_caw.ParseFromString(valarr[0]);
+  }
 
   return cur_caw;
 }

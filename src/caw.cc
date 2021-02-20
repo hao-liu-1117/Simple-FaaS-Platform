@@ -63,7 +63,7 @@ caw::Caw Caw(const caw::CawRequest &request,
   result.mutable_timestamp()->set_useconds(usecs.count());
 
   std::string result_str;
-  // serialize caw to result_str and store
+  // serialize caw to result_str and store in kvstore
   result.SerializeToString(&result_str);
   client.Put(prefix::kCawId + id, result_str);
   return result;
@@ -142,7 +142,7 @@ void ReadThread(const std::string &caw_id, caw::ReadReply &reply,
   // Put current caw into reply.
   caw::Caw cur_caw = GetCawWithCawId(caw_id, client);
   caw::Caw *put_caw = reply.add_caws();
-  
+
   // Copy fields to reply
   put_caw->set_username(cur_caw.username());
   put_caw->set_text(cur_caw.text());
@@ -173,6 +173,7 @@ caw::Caw GetCawWithCawId(const std::string &caw_id,
   keyarr.push_back(prefix::kCawId + caw_id);
   client.Get(keyarr, valarr);
   if (!valarr.empty()) {
+    // parse from serialized caw 
     cur_caw.ParseFromString(valarr[0]);
   }
 

@@ -29,7 +29,7 @@ class KVStoreClient {
   bool Remove(const std::string &key);
 
  private:
-  // Client sends request usign stub and waits for response.
+  // Client sends request using stub and waits for response.
   std::unique_ptr<kvstore::KeyValueStore::Stub> stub_;
 };
 

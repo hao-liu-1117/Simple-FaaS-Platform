@@ -7,6 +7,7 @@
 
 #include "caw.pb.h"
 #include "caw.grpc.pb.h"
+#include "faz.grpc.pb.h"
 #include "kvstore_client.h"
 
 namespace cawfunc {
@@ -39,6 +40,17 @@ void ReadThread(const std::string &caw_id, caw::ReadReply &reply,
                 KVStoreClient &client);
 
 caw::Caw GetCawWithCawId(const std::string &caw_id, KVStoreClient &client);
+
+/*
+  Helper functions for RegisterUser, Caw, Follow, Read and Profile.
+  Input parameters are faz::EventRequest* and kvstore client 
+  return is faz::EventReply*
+*/
+faz::EventReply* RegisterUserHelper(const faz::EventRequest *event_req, KVStoreClient &client);
+faz::EventReply* CawHelper(const faz::EventRequest *event_req, KVStoreClient &client);
+faz::EventReply* FollowHelper(const faz::EventRequest *event_req, KVStoreClient &client);
+faz::EventReply* ReadHelper(const faz::EventRequest *event_req, KVStoreClient &client);
+faz::EventReply* ProfileHelper(const faz::EventRequest *event_req, KVStoreClient &client);
 
 } // namespace cawfunc
 

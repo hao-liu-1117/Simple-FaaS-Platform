@@ -7,10 +7,11 @@
 
 #include "keyvaluestoreclass.h"
 #include "keyvaluestore.grpc.pb.h"
+#include "prefix.h"
 
 class KVStoreService final : public kvstore::KeyValueStore::Service {
  public:
-  explicit KVStoreService () {}
+  explicit KVStoreService ();
   grpc::Status Put(grpc::ServerContext* context, const kvstore::PutRequest* request,
                    kvstore::PutReply* response) override;
 

@@ -3,6 +3,8 @@
 
 #include <string>
 #include <vector>
+
+#include <google/protobuf/any.pb.h>
 #include <grpcpp/grpcpp.h>
 
 #include "caw.pb.h"
@@ -46,11 +48,11 @@ caw::Caw GetCawWithCawId(const std::string &caw_id, KVStoreClient &client);
   Input parameters are faz::EventRequest* and kvstore client 
   return is faz::EventReply*
 */
-faz::EventReply* RegisterUserHelper(const faz::EventRequest *event_req, KVStoreClient &client);
-faz::EventReply* CawHelper(const faz::EventRequest *event_req, KVStoreClient &client);
-faz::EventReply* FollowHelper(const faz::EventRequest *event_req, KVStoreClient &client);
-faz::EventReply* ReadHelper(const faz::EventRequest *event_req, KVStoreClient &client);
-faz::EventReply* ProfileHelper(const faz::EventRequest *event_req, KVStoreClient &client);
+faz::EventReply RegisterUserHelper(const faz::EventRequest *event_req, KVStoreClient &client);
+faz::EventReply CawHelper(const faz::EventRequest *event_req, KVStoreClient &client);
+faz::EventReply FollowHelper(const faz::EventRequest *event_req, KVStoreClient &client);
+faz::EventReply ReadHelper(const faz::EventRequest *event_req, KVStoreClient &client);
+faz::EventReply ProfileHelper(const faz::EventRequest *event_req, KVStoreClient &client);
 
 } // namespace cawfunc
 

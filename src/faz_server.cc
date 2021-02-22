@@ -25,14 +25,14 @@ grpc::Status FazServer::Hook(grpc::ServerContext* context, const faz::HookReques
                              faz::HookReply* response) {
   int event_type = request->event_type();
   std::string event_func = request->event_function();
-  kvclient_.Put(prefix::kEventType + std::to_string(event_type), event_func);
+  eventmap_[event_type] = event_func;
   return grpc::Status::OK;
 }
 
 grpc::Status FazServer::Unhook(grpc::ServerContext* context, const faz::UnhookRequest* request,
                                faz::UnhookReply* response) {
   int event_type = request->event_type();
-  kvclient_.Remove(prefix::kEventType + std::to_string(event_type));
+  eventmap_.erase(event_type);
   return grpc::Status::OK;
 }
 
@@ -46,17 +46,16 @@ grpc::Status FazServer::Event(grpc::ServerContext* context, const faz::EventRequ
     return grpc::Status::CANCELLED;
   }
   // execute event
-  response = funcmap_[funcstr](request, kvclient_);
+  faz::EventReply event_rep = funcmap_[funcstr](request, kvclient_);
+  response = new faz::EventReply(event_rep);
   return grpc::Status::OK;
 }
 
 std::string FazServer::GetFunctionStr(const int event_type) {
-  std::string res;
-  std::vector<std::string> keyarr, valarr;
-  keyarr.push_back(prefix::kEventType + std::to_string(event_type));
-  kvclient_.Get(keyarr, valarr);
-  if (!valarr.empty()) {
-    res = valarr[0];
+  std::string res = "";
+  // Check if event_type hooked to a specific function.
+  if (eventmap_.count(event_type)) {
+    res = eventmap_[event_type];
   }
   return res;
 }

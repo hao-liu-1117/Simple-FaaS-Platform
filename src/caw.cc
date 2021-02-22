@@ -170,51 +170,51 @@ caw::Caw GetCawWithCawId(const std::string &caw_id,
   return cur_caw;
 }
 
-faz::EventReply* RegisterUserHelper(const faz::EventRequest *event_req,
+faz::EventReply RegisterUserHelper(const faz::EventRequest *event_req,
                                     KVStoreClient &client) {
   caw::RegisteruserRequest request;
-  faz::EventReply *event_rep = new faz::EventReply();
+  faz::EventReply event_rep;
   event_req->payload().UnpackTo(&request);
   RegisterUser(request, client);
   return event_rep;
 }
 
-faz::EventReply* CawHelper(const faz::EventRequest *event_req, 
+faz::EventReply CawHelper(const faz::EventRequest *event_req, 
                            KVStoreClient &client) {
   caw::CawRequest request;
-  faz::EventReply *event_rep = new faz::EventReply();
+  faz::EventReply event_rep;
   event_req->payload().UnpackTo(&request);
   caw::Caw reply = Caw(request, client);
-  event_rep->mutable_payload()->PackFrom(reply);
+  (event_rep.mutable_payload())->PackFrom(reply);
   return event_rep;
 }
 
-faz::EventReply* FollowHelper(const faz::EventRequest *event_req, 
+faz::EventReply FollowHelper(const faz::EventRequest *event_req, 
                               KVStoreClient &client) {
   caw::FollowRequest request;
-  faz::EventReply *event_rep = new faz::EventReply();
-  event_req->payload().UnpackTo(&request);
+  faz::EventReply event_rep;
+  (event_req->payload()).UnpackTo(&request);
   Follow(request, client);
   return event_rep;
 }
 
-faz::EventReply* ReadHelper(const faz::EventRequest *event_req,
+faz::EventReply ReadHelper(const faz::EventRequest *event_req,
                             KVStoreClient &client) {
   caw::ReadRequest request;
-  faz::EventReply *event_rep = new faz::EventReply();
+  faz::EventReply event_rep;
   event_req->payload().UnpackTo(&request);
   caw::ReadReply reply = Read(request, client);
-  event_rep->mutable_payload()->PackFrom(reply);
+  (event_rep.mutable_payload())->PackFrom(reply);
   return event_rep;
 }
 
-faz::EventReply* ProfileHelper(const faz::EventRequest *event_req,
+faz::EventReply ProfileHelper(const faz::EventRequest *event_req,
                                KVStoreClient &client) {
   caw::ProfileRequest request;
-  faz::EventReply *event_rep = new faz::EventReply();
+  faz::EventReply event_rep;
   event_req->payload().UnpackTo(&request);
   caw::ProfileReply reply = Profile(request, client);
-  event_rep->mutable_payload()->PackFrom(reply);
+  (event_rep.mutable_payload())->PackFrom(reply);
   return event_rep;
 }
 } // namesapce cawfunc

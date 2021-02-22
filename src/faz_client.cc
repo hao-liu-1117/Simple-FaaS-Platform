@@ -30,13 +30,9 @@ bool FazClient::Unhook(const int event_type, const std::string &funcstr) {
   return true;
 }
 
-faz::EventReply* Event(const faz::EventRequest* request) {
+faz::EventReply Event(const faz::EventRequest &request) {
   grpc::ClientContext context;
-  faz::EventReply *reply;
-  grpc::Status status = stub_->Event(&context, request, reply);
+  faz::EventReply reply;
+  grpc::Status status = stub_->Event(&context, &request, &reply);
   return reply;
-}
-
-int main() {
-  return false;
 }

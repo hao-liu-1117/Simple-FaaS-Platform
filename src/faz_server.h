@@ -9,6 +9,8 @@
 #include "faz.grpc.pb.h"
 #include "kvstore_client.h"
 
+// Faz Server hook/unhook functions and execute 
+// functions through FazServer::Event().
 class FazServer final : public faz::FazService::Service {
  public:
   // Initialize Faz server with kvstore client constructor.
@@ -27,9 +29,12 @@ class FazServer final : public faz::FazService::Service {
   std::string GetFunctionStr(const int event_id);
   // Build a function map for FazServer::Event.
   // FazServer::Event can execute function based on which string::event_function passed in.
-  std::unordered_map<std::string, std::function<faz::EventReply*(
+  std::unordered_map<std::string, std::function<faz::EventReply(
                                                 const faz::EventRequest*,
                                                 KVStoreClient&)>> funcmap_;
+  // Build an event map for FazServer::Event.
+  // FazServer::Event can reach out which function is going to execute by eventmap_.
+  std::unordered_map<int, std::string> eventmap_;
   KVStoreClient kvclient_;
 };
 

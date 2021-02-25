@@ -50,30 +50,6 @@ add_custom_command(
         "${kvstore_proto}"
       DEPENDS "${kvstore_proto}")
 
-# Include generated *.pb.h files
-include_directories("${CMAKE_CURRENT_BINARY_DIR}")
-
-# Targets (client|server)
-foreach(_target
-   kvstore_server)
-  add_executable(${_target} "${_target}.cc"
-    ${kvstore_proto_srcs}
-    ${kvstore_grpc_srcs}
-    "keyvaluestoreclass.cc"
-    )
-  target_link_libraries(${_target}
-    ${_REFLECTION}
-    ${_GRPC_GRPCPP}
-    ${_PROTOBUF_LIBPROTOBUF})
-endforeach()
-
-# test kvstore server
-find_package(GTest REQUIRED)
-
-add_executable(kvstore_server_test "kvstore_server_test.cc" ${kvstore_proto_srcs} ${kvstore_grpc_srcs} "kvstore_client.cc")
-target_link_libraries(kvstore_server_test GTest::GTest GTest::Main glog
-${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
-
 # Caw Proto file
 get_filename_component(caw_proto "caw.proto" ABSOLUTE)
 get_filename_component(caw_proto_path "${caw_proto}" PATH)
@@ -94,9 +70,65 @@ add_custom_command(
         "${caw_proto}"
       DEPENDS "${caw_proto}")
 
+# Caw Proto file
+get_filename_component(faz_proto "faz.proto" ABSOLUTE)
+get_filename_component(faz_proto_path "${faz_proto}" PATH)
+
+# Generated sources
+set(faz_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/faz.pb.cc")
+set(faz_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/faz.pb.h")
+set(faz_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/faz.grpc.pb.cc")
+set(faz_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/faz.grpc.pb.h")
+
+add_custom_command(
+      OUTPUT "${faz_proto_srcs}" "${faz_proto_hdrs}" "${faz_grpc_srcs}" "${faz_grpc_hdrs}"
+      COMMAND ${_PROTOBUF_PROTOC}
+      ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
+        --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+        -I "${faz_proto_path}"
+        --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
+        "${faz_proto}"
+      DEPENDS "${faz_proto}")
+
+# Include generated *.pb.h files
+include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+
+# Targets (client|server)
+foreach(_target
+   kvstore_server)
+  add_executable(${_target} "${_target}.cc"
+    ${kvstore_proto_srcs}
+    ${kvstore_grpc_srcs}
+    "keyvaluestoreclass.cc"
+    )
+  target_link_libraries(${_target}
+    ${_REFLECTION}
+    ${_GRPC_GRPCPP}
+    ${_PROTOBUF_LIBPROTOBUF})
+endforeach()
+
+# test kvstore server
+find_package(GTest REQUIRED)
+
+add_executable(kvstore_server_test "kvstore_server_test.cc" ${kvstore_proto_srcs} 
+${kvstore_grpc_srcs} "kvstore_client.cc" ${caw_proto_srcs} ${caw_grpc_srcs}
+${faz_proto_srcs} ${faz_grpc_srcs})
+
+target_link_libraries(kvstore_server_test GTest::GTest GTest::Main glog
+${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
+
 # test caw functionality
 
 add_executable(caw_test "caw_test.cc" ${caw_proto_srcs} ${caw_grpc_srcs} "caw.cc" 
-${kvstore_proto_srcs} ${kvstore_grpc_srcs} "keyvaluestoreclass.cc" "kvstore_client.cc") 
+${kvstore_proto_srcs} ${kvstore_grpc_srcs} "keyvaluestoreclass.cc" "kvstore_client.cc"
+${faz_proto_srcs} ${faz_grpc_srcs})
+
 target_link_libraries(caw_test GTest::GTest GTest::Main glog
 ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
+
+# build faz
+
+add_executable(faz_server "faz_server.cc" ${faz_proto_srcs} ${faz_grpc_srcs} 
+"kvstore_client.cc" ${kvstore_proto_srcs} ${kvstore_grpc_srcs} "caw.cc" ${caw_proto_srcs} ${caw_grpc_srcs})
+
+target_link_libraries(faz_server ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF} GTest::GTest GTest::Main glog)

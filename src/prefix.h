@@ -18,6 +18,8 @@ namespace prefix {
   const std::string kCawSonId = std::string("caw_son_id_"); // (caw_son_id + caw_id) -- caw_id
   const std::string kCawSeconds = std::string("cawseconds_"); // (cawseconds_ + caw_id) -- timestamp seconds
   const std::string kCawUSeconds = std::string("cawuseconds_"); // (cawuseconds_ + caw_id) -- timestamp useconds
+
+  const std::string kEventType = std::string("event_"); // (event_ + event_id) -- functions
 } // namespace prefix
 
 #endif

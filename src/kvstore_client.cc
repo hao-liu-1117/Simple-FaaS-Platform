@@ -1,8 +1,5 @@
 #include <glog/logging.h>
 
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
-
 #include "kvstore_client.h"
 
 bool KVStoreClient::Put (const std::string &key, const std::string &value) {

@@ -15,13 +15,13 @@
 namespace cawfunc {
 
 // Return true if register success, false if failed.
-bool RegisterUser(const caw::RegisteruserRequest &request, KVStoreClient &client);
+caw::RegisteruserReply RegisterUser(const caw::RegisteruserRequest &request, KVStoreClient &client);
 
 // Create a new caw and return caw_id.
 caw::Caw Caw(const caw::CawRequest &request, KVStoreClient &client);
 
 // Return true if follow success, false if failed.
-bool Follow(const caw::FollowRequest &request, KVStoreClient &client);
+caw::FollowReply Follow(const caw::FollowRequest &request, KVStoreClient &client);
 
 // Return caw thread with the giving caw_id.
 caw::ReadReply Read(const caw::ReadRequest &request, KVStoreClient &client);

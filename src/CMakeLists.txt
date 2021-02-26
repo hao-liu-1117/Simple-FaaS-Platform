@@ -8,6 +8,22 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glog)
 
+# Import gflags
+FetchContent_Declare(
+  gflags
+  GIT_REPOSITORY https://github.com/gflags/gflags.git
+  GIT_TAG v2.2.2
+)
+FetchContent_MakeAvailable(gflags)
+
+# Import gtest
+FetchContent_Declare(
+  GTest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG release-1.10.0
+)
+FetchContent_MakeAvailable(GTest)
+
 # Protobuf
 set(protobuf_MODULE_COMPATIBLE TRUE)
 find_package(Protobuf CONFIG REQUIRED)
@@ -132,3 +148,9 @@ add_executable(faz_server "faz_server.cc" ${faz_proto_srcs} ${faz_grpc_srcs}
 "kvstore_client.cc" ${kvstore_proto_srcs} ${kvstore_grpc_srcs} "caw.cc" ${caw_proto_srcs} ${caw_grpc_srcs})
 
 target_link_libraries(faz_server ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF} GTest::GTest GTest::Main glog)
+
+# build cmd client
+add_executable(cmd_client "cmd_client.cc" "faz_client.cc" ${faz_proto_srcs} ${faz_grpc_srcs} 
+"kvstore_client.cc" ${kvstore_proto_srcs} ${kvstore_grpc_srcs} "caw.cc" ${caw_proto_srcs} ${caw_grpc_srcs})
+
+target_link_libraries(cmd_client ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF} GTest::GTest GTest::Main glog gflags)

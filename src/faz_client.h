@@ -15,17 +15,22 @@
 // and sends reqeusts to FazServer.
 class FazClient {
  public:
-  explicit FazClient(std::shared_ptr<grpc::Channel> channel)
-                        : stub_(faz::FazService::NewStub(channel)) {}
+  // explicit FazClient(std::shared_ptr<grpc::Channel> channel)
+  //                       : stub_(faz::FazService::NewStub(channel)) {}
+  explicit FazClient(std::shared_ptr<grpc::Channel> channel) 
+                        : stub_(faz::FazService::NewStub(channel)){}
 
   bool Hook(const int event_type, const std::string &funcstr);
 
   bool Unhook(const int event_type);
+  // If function is registered, return event_type. Otherwise return -1.
+  // event_type == -1 stands for invalid event_type.
+  int IsRegistered(const std::string &funcstr);
 
   faz::EventReply Event(const faz::EventRequest &request);
  private:
   // Client sends request using stub and waits for response.
   std::unique_ptr<faz::FazService::Stub> stub_;
-}
+};
 
 #endif

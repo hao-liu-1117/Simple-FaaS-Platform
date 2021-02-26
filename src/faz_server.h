@@ -25,6 +25,9 @@ class FazServer final : public faz::FazService::Service {
   grpc::Status Event(grpc::ServerContext* context, const faz::EventRequest* request,
                      faz::EventReply* response) override;
 
+  grpc::Status IsRegistered(grpc::ServerContext* context, const faz::IsRegisteredRequest* request,
+                            faz::IsRegisteredReply* response) override;
+
  private:
   std::string GetFunctionStr(const int event_id);
   // Build a function map for FazServer::Event.
@@ -35,6 +38,8 @@ class FazServer final : public faz::FazService::Service {
   // Build an event map for FazServer::Event.
   // FazServer::Event can reach out which function is going to execute by eventmap_.
   std::unordered_map<int, std::string> eventmap_;
+  // Check if function is bind with specific event type.
+  std::unordered_map<std::string, int> typemap_;
   KVStoreClient kvclient_;
 };
 

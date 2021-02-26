@@ -15,6 +15,7 @@ message HookRequest {
 
 message HookReply {
   // Empty because success/failure is signaled via GRPC status.
+  bool success = 1;
 }
 
 // Unregisters an event of the given type, if registered.  Has no effect if already unregistered.
@@ -37,8 +38,17 @@ message EventReply {
   google.protobuf.Any payload = 1;
 }
 
+message IsRegisteredRequest {
+  bytes event_function = 1;
+}
+
+message IsRegisteredReply {
+  int32 event_type = 1;
+}
+
 service FazService {
   rpc Hook (HookRequest) returns (HookReply) {}
   rpc Unhook (UnhookRequest) returns (UnhookReply) {}
   rpc Event (EventRequest) returns (EventReply) {}
+  rpc IsRegistered (IsRegisteredRequest) returns (IsRegisteredReply) {}
 }

@@ -13,16 +13,19 @@ KeyValueStore be_replied;
 std::unordered_map<std::string, caw::Caw> cawmap;
 namespace cawfunc {
 
-bool RegisterUser(const caw::RegisteruserRequest &request,
-                  KVStoreClient &client) {
+caw::RegisteruserReply RegisterUser(const caw::RegisteruserRequest &request,
+                                    KVStoreClient &client) {
   std::string username = request.username();
+  caw::RegisteruserReply reply;
   // Check if user already exists.
   if (UserExists(username, client)) {
-    return false;
+    reply.set_success(false);
+    return reply;
   }
   // Use kvstore as a set.
   client.Put(prefix::kUser + username, username);
-  return true;
+  reply.set_success(true);
+  return reply;
 }
 
 caw::Caw Caw(const caw::CawRequest &request,
@@ -30,6 +33,24 @@ caw::Caw Caw(const caw::CawRequest &request,
   std::string username = request.username();
   std::string text = request.text();
   std::string parent_id = request.parent_id();
+  caw::Caw result;
+  // Check if username and parent caw id exists.
+  if (!UserExists(username, client)) {
+    // id == -1 stands for invalid id. Caw will not be created.
+    result.set_id("-1");
+    return result;
+  }
+
+  if (!parent_id.empty()) {
+    caw::Caw parent_caw = GetCawWithCawId(parent_id, client);
+    if (parent_caw.id()=="") {
+      // Parent caw does not exist.
+      // parent_id == -1 stands for invalid parent_id. Caw will not be created.
+      result.set_parent_id("-1");
+      return result;
+    }
+  }
+
   // Assign caw_id as current count of caws.
   std::string id = GetNextCawId(client);
 
@@ -44,7 +65,6 @@ caw::Caw Caw(const caw::CawRequest &request,
   client.Put(prefix::kCawSonId + parent_id, id);
   
   // Pack those info to Caw and return.
-  caw::Caw result;
   result.set_username(username);
   result.set_text(text);
   result.set_id(id);
@@ -59,17 +79,20 @@ caw::Caw Caw(const caw::CawRequest &request,
   return result;
 }
 
-bool Follow(const caw::FollowRequest &request,
-            KVStoreClient &client) {
+caw::FollowReply Follow(const caw::FollowRequest &request,
+                        KVStoreClient &client) {
   std::string username = request.username();
   std::string to_follow = request.to_follow();
+  caw::FollowReply reply;
   // check if username and to_follow exists.
   if (!UserExists(username, client) || !UserExists(to_follow, client)) {
-    return false;
+    reply.set_success(false);
+    return reply;
   }
   client.Put(prefix::kFollowing + username, to_follow);
   client.Put(prefix::kFollowers + to_follow, username);
-  return true;
+  reply.set_success(true);
+  return reply;
 }
 
 caw::ReadReply Read(const caw::ReadRequest &request,
@@ -175,7 +198,8 @@ faz::EventReply RegisterUserHelper(const faz::EventRequest *event_req,
   caw::RegisteruserRequest request;
   faz::EventReply event_rep;
   event_req->payload().UnpackTo(&request);
-  RegisterUser(request, client);
+  caw::RegisteruserReply reply = RegisterUser(request, client);
+  (event_rep.mutable_payload())->PackFrom(reply);
   return event_rep;
 }
 
@@ -194,7 +218,8 @@ faz::EventReply FollowHelper(const faz::EventRequest *event_req,
   caw::FollowRequest request;
   faz::EventReply event_rep;
   (event_req->payload()).UnpackTo(&request);
-  Follow(request, client);
+  caw::FollowReply reply = Follow(request, client);
+  (event_rep.mutable_payload())->PackFrom(reply);
   return event_rep;
 }
 

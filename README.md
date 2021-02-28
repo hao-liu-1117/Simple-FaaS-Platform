@@ -39,14 +39,14 @@ cd src
 ./faz_server
 
 # in a new terminal
-./cmd_client --registeruser Hao_Liu
-./cmd_client --caw thisismyfirstcaw --user Hao_Liu
-./cmd_client --caw thisismyreply --user Hao_Liu --reply 0
-./cmd_client --caw this is my reply --user Hao_Liu --reply 1
-./cmd_client --read 0
-./cmd_client --registeruser Barath
-./cmd_client --follow Barath --user Hao_Liu
-./cmd_client --profile --user Hao_Liu
-./cmd_client --profile --user Barath
+./client --registeruser Hao_Liu
+./client --caw thisismyfirstcaw --user Hao_Liu
+./client --caw thisismyreply --user Hao_Liu --reply 0
+./client --caw this is my reply --user Hao_Liu --reply 1
+./client --read 0
+./client --registeruser Barath
+./client --follow Barath --user Hao_Liu
+./client --profile --user Hao_Liu
+./client --profile --user Barath
 #
 ```

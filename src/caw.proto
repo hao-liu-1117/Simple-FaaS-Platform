@@ -21,7 +21,7 @@ message RegisteruserRequest {
 }
 
 message RegisteruserReply {
-  bool success = 1;
+
 }
 
 message CawRequest {
@@ -40,7 +40,7 @@ message FollowRequest {
 }
 
 message FollowReply {
-  bool success = 1;
+
 }
 
 message ReadRequest {

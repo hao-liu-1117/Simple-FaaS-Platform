@@ -150,7 +150,7 @@ add_executable(faz_server "faz_server.cc" ${faz_proto_srcs} ${faz_grpc_srcs}
 target_link_libraries(faz_server ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF} GTest::GTest GTest::Main glog)
 
 # build cmd client
-add_executable(cmd_client "cmd_client.cc" "faz_client.cc" ${faz_proto_srcs} ${faz_grpc_srcs} 
+add_executable(client "run_cmd_client.cc" "cmd_client.cc" "faz_client.cc" ${faz_proto_srcs} ${faz_grpc_srcs} 
 "kvstore_client.cc" ${kvstore_proto_srcs} ${kvstore_grpc_srcs} "caw.cc" ${caw_proto_srcs} ${caw_grpc_srcs})
 
-target_link_libraries(cmd_client ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF} GTest::GTest GTest::Main glog gflags)
+target_link_libraries(client ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF} GTest::GTest GTest::Main glog gflags)

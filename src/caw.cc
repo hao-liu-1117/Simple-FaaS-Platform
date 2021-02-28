@@ -13,18 +13,17 @@ KeyValueStore be_replied;
 std::unordered_map<std::string, caw::Caw> cawmap;
 namespace cawfunc {
 
-caw::RegisteruserReply RegisterUser(const caw::RegisteruserRequest &request,
+bool RegisterUser(const caw::RegisteruserRequest &request,
                                     KVStoreClient &client) {
   std::string username = request.username();
-  caw::RegisteruserReply reply;
+  bool reply = true;
   // Check if user already exists.
   if (UserExists(username, client)) {
-    reply.set_success(false);
+    reply = false;
     return reply;
   }
   // Use kvstore as a set.
   client.Put(prefix::kUser + username, username);
-  reply.set_success(true);
   return reply;
 }
 
@@ -79,19 +78,18 @@ caw::Caw Caw(const caw::CawRequest &request,
   return result;
 }
 
-caw::FollowReply Follow(const caw::FollowRequest &request,
+bool Follow(const caw::FollowRequest &request,
                         KVStoreClient &client) {
   std::string username = request.username();
   std::string to_follow = request.to_follow();
-  caw::FollowReply reply;
+  bool reply = true;
   // check if username and to_follow exists.
   if (!UserExists(username, client) || !UserExists(to_follow, client)) {
-    reply.set_success(false);
+    reply = false;
     return reply;
   }
   client.Put(prefix::kFollowing + username, to_follow);
   client.Put(prefix::kFollowers + to_follow, username);
-  reply.set_success(true);
   return reply;
 }
 
@@ -198,8 +196,12 @@ faz::EventReply RegisterUserHelper(const faz::EventRequest *event_req,
   caw::RegisteruserRequest request;
   faz::EventReply event_rep;
   event_req->payload().UnpackTo(&request);
-  caw::RegisteruserReply reply = RegisterUser(request, client);
-  (event_rep.mutable_payload())->PackFrom(reply);
+  bool suc = RegisterUser(request, client);
+  caw::RegisteruserRequest rep;
+  if (suc) {
+    rep.set_username("success"); // Unempty string indicate success.
+  }
+  (event_rep.mutable_payload())->PackFrom(rep);
   return event_rep;
 }
 
@@ -218,8 +220,12 @@ faz::EventReply FollowHelper(const faz::EventRequest *event_req,
   caw::FollowRequest request;
   faz::EventReply event_rep;
   (event_req->payload()).UnpackTo(&request);
-  caw::FollowReply reply = Follow(request, client);
-  (event_rep.mutable_payload())->PackFrom(reply);
+  bool suc = Follow(request, client);
+  caw::RegisteruserRequest rep;
+  if (suc) {
+    rep.set_username("success"); // Unempty string indicate success.
+  }
+  (event_rep.mutable_payload())->PackFrom(rep);
   return event_rep;
 }
 

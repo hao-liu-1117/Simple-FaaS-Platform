@@ -14,17 +14,17 @@ TEST(CawfuncTest, RegisterUserTest) {
                        grpc::InsecureChannelCredentials()));
   caw::RegisteruserRequest request;
   request.set_username("user1");
-  bool suc = cawfunc::RegisterUser(request, client);
-  ASSERT_TRUE(suc);
+  bool rep = cawfunc::RegisterUser(request, client);
+  ASSERT_TRUE(rep);
   // register same username should return false.
-  suc = cawfunc::RegisterUser(request, client);
-  ASSERT_FALSE(suc);
+  rep = cawfunc::RegisterUser(request, client);
+  ASSERT_FALSE(rep);
   request.set_username("user2");
-  suc = cawfunc::RegisterUser(request, client);
-  ASSERT_TRUE(suc);
+  rep = cawfunc::RegisterUser(request, client);
+  ASSERT_TRUE(rep);
   request.set_username("user3");
-  suc = cawfunc::RegisterUser(request, client);
-  ASSERT_TRUE(suc);
+  rep = cawfunc::RegisterUser(request, client);
+  ASSERT_TRUE(rep);
 }
 
 // Test cawfunc::Caw works.
@@ -56,17 +56,17 @@ TEST(CawfuncTest, FollowProfileTest) {
   // user1 follow user2 should be success.
   request.set_username("user1");
   request.set_to_follow("user2");
-  bool suc = cawfunc::Follow(request, client);
-  ASSERT_TRUE(suc);
+  bool rep = cawfunc::Follow(request, client);
+  ASSERT_TRUE(rep);
   // user2 follow user3 should be success.
   request.set_username("user2");
   request.set_to_follow("user3");
-  suc = cawfunc::Follow(request, client);
-  ASSERT_TRUE(suc);
+  rep = cawfunc::Follow(request, client);
+  ASSERT_TRUE(rep);
   // user2 follow user4 should be failed because user4 does not exist.
   request.set_to_follow("user4");
-  suc = cawfunc::Follow(request, client);
-  ASSERT_FALSE(suc);
+  rep = cawfunc::Follow(request, client);
+  ASSERT_FALSE(rep);
 
   // Test caw::Profile
   caw::ProfileRequest prequest;

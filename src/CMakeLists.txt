@@ -8,6 +8,22 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glog)
 
+# Import gflags
+FetchContent_Declare(
+  gflags
+  GIT_REPOSITORY https://github.com/gflags/gflags.git
+  GIT_TAG v2.2.2
+)
+FetchContent_MakeAvailable(gflags)
+
+# Import gtest
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG release-1.10.0
+)
+FetchContent_MakeAvailable(googletest)
+
 # Protobuf
 set(protobuf_MODULE_COMPATIBLE TRUE)
 find_package(Protobuf CONFIG REQUIRED)
@@ -107,14 +123,17 @@ foreach(_target
     ${_PROTOBUF_LIBPROTOBUF})
 endforeach()
 
-# test kvstore server
-find_package(GTest REQUIRED)
+# test kvstore
+add_executable(kvstore_test "kvstore_test.cc" "keyvaluestoreclass.cc")
 
+target_link_libraries(kvstore_test gtest)
+
+# test kvstore server
 add_executable(kvstore_server_test "kvstore_server_test.cc" ${kvstore_proto_srcs} 
 ${kvstore_grpc_srcs} "kvstore_client.cc" ${caw_proto_srcs} ${caw_grpc_srcs}
 ${faz_proto_srcs} ${faz_grpc_srcs})
 
-target_link_libraries(kvstore_server_test GTest::GTest GTest::Main glog
+target_link_libraries(kvstore_server_test gtest glog
 ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
 
 # test caw functionality
@@ -123,7 +142,7 @@ add_executable(caw_test "caw_test.cc" ${caw_proto_srcs} ${caw_grpc_srcs} "caw.cc
 ${kvstore_proto_srcs} ${kvstore_grpc_srcs} "keyvaluestoreclass.cc" "kvstore_client.cc"
 ${faz_proto_srcs} ${faz_grpc_srcs})
 
-target_link_libraries(caw_test GTest::GTest GTest::Main glog
+target_link_libraries(caw_test gtest glog
 ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
 
 # build faz
@@ -131,4 +150,10 @@ ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
 add_executable(faz_server "faz_server.cc" ${faz_proto_srcs} ${faz_grpc_srcs} 
 "kvstore_client.cc" ${kvstore_proto_srcs} ${kvstore_grpc_srcs} "caw.cc" ${caw_proto_srcs} ${caw_grpc_srcs})
 
-target_link_libraries(faz_server ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF} GTest::GTest GTest::Main glog)
+target_link_libraries(faz_server ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF} gtest glog)
+
+# build cmd client
+add_executable(client "run_cmd_client.cc" "cmd_client.cc" "faz_client.cc" ${faz_proto_srcs} ${faz_grpc_srcs} 
+"kvstore_client.cc" ${kvstore_proto_srcs} ${kvstore_grpc_srcs} "caw.cc" ${caw_proto_srcs} ${caw_grpc_srcs})
+
+target_link_libraries(client ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF} gtest glog gflags)

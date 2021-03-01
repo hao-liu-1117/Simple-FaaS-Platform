@@ -205,6 +205,7 @@ void PrintProfile(const std::string &username, const caw::ProfileReply &rep) {
 }
 
 void PrintCaw(const caw::Caw &c) {
+  std::cout << std::endl;
   std::cout << "Caw username: " << c.username() << std::endl;
   std::cout << "Text: " << c.text() << std::endl;
   std::cout << "Id: " << c.id() << std::endl;

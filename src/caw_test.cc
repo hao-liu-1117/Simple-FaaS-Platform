@@ -66,7 +66,7 @@ TEST(CawfuncTest, FollowProfileTest) {
   // user2 follow user4 should be failed because user4 does not exist.
   request.set_to_follow("user4");
   rep = cawfunc::Follow(request, client);
-  ASSERT_TRUE(rep);
+  ASSERT_FALSE(rep);
 
   // Test caw::Profile
   caw::ProfileRequest prequest;

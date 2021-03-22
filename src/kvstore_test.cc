@@ -75,6 +75,28 @@ TEST(FunctionTest, RemoveTest) {
   ASSERT_TRUE(store_arr.empty()); // expected: 0==0
 };
 
+TEST(FunctionTest, StoreLoadTest) {
+  KeyValueStore store;
+  std::vector<std::string> comp_arr;
+  int arr_len = 10;
+  for (int i = 0; i < arr_len; i++) {
+    store.Put("key" + std::to_string(0), "value" + std::to_string(i));
+    comp_arr.push_back("value" + std::to_string(i));
+  }
+
+  std::vector<std::string> store_arr;
+
+  store.Store("teststore.txt");
+  store.Remove("key" + std::to_string(0));
+  std::unordered_set<std::string> store_set = store.Get("key" + std::to_string(0));
+  ASSERT_TRUE(store_set.empty()); // expected: 0==0
+
+  store.Load("teststore.txt");
+  store_set = store.Get("key" + std::to_string(0));
+  ASSERT_TRUE(store_set.size()==10); // expeceted: 10==10
+}
+
+
 } // namespace
 
 int main(int argc, char *argv[]) {

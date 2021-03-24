@@ -75,6 +75,7 @@ TEST(FunctionTest, RemoveTest) {
   ASSERT_TRUE(store_arr.empty()); // expected: 0==0
 };
 
+// Test if Store and Load methods work.
 TEST(FunctionTest, StoreLoadTest) {
   KeyValueStore store;
   std::vector<std::string> comp_arr;
@@ -83,7 +84,7 @@ TEST(FunctionTest, StoreLoadTest) {
     store.Put("key" + std::to_string(0), "value" + std::to_string(i));
     comp_arr.push_back("value" + std::to_string(i));
   }
-
+  // "key0" -> ["value0", "value1", ..., "value9"]
   std::vector<std::string> store_arr;
 
   store.Store("teststore.txt");

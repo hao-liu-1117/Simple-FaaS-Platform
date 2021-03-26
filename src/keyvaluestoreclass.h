@@ -31,10 +31,10 @@ class KeyValueStore {
   void Remove(const std::string &key);
 
   // Store key-value pairs to file.
-  void Store(const std::string &filename);
+  static void Store(KeyValueStore &instance, const std::string &filename);
 
   // Load key-value pairs from file.
-  void Load(const std::string &filename);
+  static void Load(KeyValueStore &instance, const std::string &filename);
 
  private:
   // Data structure for key-value storage.

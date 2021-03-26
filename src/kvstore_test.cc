@@ -87,12 +87,12 @@ TEST(FunctionTest, StoreLoadTest) {
   // "key0" -> ["value0", "value1", ..., "value9"]
   std::vector<std::string> store_arr;
 
-  store.Store("teststore.txt");
+  KeyValueStore::Store(store, "teststore.txt");
   store.Remove("key" + std::to_string(0));
   std::unordered_set<std::string> store_set = store.Get("key" + std::to_string(0));
   ASSERT_TRUE(store_set.empty()); // expected: 0==0
 
-  store.Load("teststore.txt");
+  KeyValueStore::Load(store, "teststore.txt");
   store_set = store.Get("key" + std::to_string(0));
   ASSERT_TRUE(store_set.size()==10); // expeceted: 10==10
 }

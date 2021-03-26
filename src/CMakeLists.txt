@@ -143,7 +143,8 @@ foreach(_target
   target_link_libraries(${_target}
     ${_REFLECTION}
     ${_GRPC_GRPCPP}
-    ${_PROTOBUF_LIBPROTOBUF})
+    ${_PROTOBUF_LIBPROTOBUF}
+    gflags)
 endforeach()
 
 # test kvstore
@@ -157,6 +158,13 @@ ${kvstore_grpc_srcs} "kvstore_client.cc" ${caw_proto_srcs} ${caw_grpc_srcs}
 ${faz_proto_srcs} ${faz_grpc_srcs})
 
 target_link_libraries(kvstore_server_test gtest glog
+${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
+
+add_executable(kvstore_load_test "kvstore_load_test.cc" ${kvstore_proto_srcs} 
+${kvstore_grpc_srcs} "kvstore_client.cc" ${caw_proto_srcs} ${caw_grpc_srcs}
+${faz_proto_srcs} ${faz_grpc_srcs})
+
+target_link_libraries(kvstore_load_test gtest glog
 ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
 
 # test caw functionality

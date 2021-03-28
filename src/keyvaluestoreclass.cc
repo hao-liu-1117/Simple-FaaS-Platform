@@ -25,3 +25,33 @@ void KeyValueStore::Remove(const std::string &key) {
   const std::lock_guard<std::mutex> lock(map_mutex_);
   map_.erase(key);
 }
+
+void KeyValueStore::Store(KeyValueStore &instance, const std::string &filename) {
+
+  std::fstream output(filename, std::ios::out | std::ios::trunc | std::ios::binary);
+
+  storage::Memory mem;
+  for (const auto& [key, valset] : instance.map_) {
+    for (const auto& val : valset) {
+      storage::Memory::KVPair *pair_to_add = mem.add_kv_pairs();
+      pair_to_add->set_key(key);
+      pair_to_add->set_value(val);
+    }
+  }
+
+  mem.SerializeToOstream(&output);
+}
+
+void KeyValueStore::Load(KeyValueStore &instance, const std::string &filename) {
+  std::fstream input(filename, std::ios::in | std::ios::binary);
+  if (!input) {
+    // Can not find file to load.
+    return;
+  }
+  storage::Memory mem;
+  mem.ParseFromIstream(&input);
+  int len = mem.kv_pairs_size();
+  for (int i = 0; i < len; i++) {
+    instance.Put(mem.kv_pairs(i).key(), mem.kv_pairs(i).value());
+  }
+}

@@ -7,6 +7,8 @@
 
 #include "kvstore_server.h"
 
+DEFINE_string(store, "", "filename to store data.");
+
 KVStoreService::KVStoreService() {
   // Init caw count in kvstore backend
   storeinstance_.Put(prefix::kCawCount, prefix::kCawInitId);
@@ -43,10 +45,21 @@ grpc::Status KVStoreService::Remove(grpc::ServerContext* context,
   return grpc::Status::OK;
 }
 
+static KVStoreService service;
+
+void storeHandler(int signum) {
+  KeyValueStore::Store(service.storeinstance_, FLAGS_store);
+  exit(0);
+}
+
 void RunServer() {
   std::string server_address = "0.0.0.0:50001";
-  KVStoreService service;
   grpc::ServerBuilder builder;
+  if (!FLAGS_store.empty()) {
+    // Register store handler. If SIGINT received, store data.
+    signal(SIGINT, storeHandler);
+    KeyValueStore::Load(service.storeinstance_, FLAGS_store);
+  }
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
   builder.RegisterService(&service);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
@@ -54,6 +67,7 @@ void RunServer() {
 }
 
 int main(int argc, char** argv) {
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
   RunServer();
   return 0;
 }

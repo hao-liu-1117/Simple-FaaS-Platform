@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package storage;
+
+message Memory {
+  message KVPair {
+    string key = 1;
+    string value = 2;
+  }
+  repeated KVPair kv_pairs = 1;
+}

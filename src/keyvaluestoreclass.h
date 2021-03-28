@@ -2,11 +2,15 @@
 #define KEYVALUESTORECLASS_H_
 
 #include <algorithm>
+#include <fstream>
+#include <iostream>
 #include <mutex>
 #include <thread>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+#include "storage.pb.h"
 
 // Backend key-value store which supports cocurrent access.
 // To support multithread, a mutex required 
@@ -25,6 +29,12 @@ class KeyValueStore {
 
   // Removes key-value pair.
   void Remove(const std::string &key);
+
+  // Store key-value pairs to file.
+  static void Store(KeyValueStore &instance, const std::string &filename);
+
+  // Load key-value pairs from file.
+  static void Load(KeyValueStore &instance, const std::string &filename);
 
  private:
   // Data structure for key-value storage.

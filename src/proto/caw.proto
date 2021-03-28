@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package caw;
 
+option go_package = "src/proto/caw";
+
 // Time as given by Linux gettimeofday().
 message Timestamp {
   int64 seconds = 1;  // Seconds since beginning of UNIX epoch.

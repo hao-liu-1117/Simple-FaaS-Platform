@@ -2,7 +2,9 @@
 #define KVSTORE_SERVER_H_
 
 #include <string>
+#include <signal.h>
 
+#include <gflags/gflags.h>
 #include <grpcpp/grpcpp.h>
 
 #include "keyvaluestoreclass.h"
@@ -20,7 +22,7 @@ class KVStoreService final : public kvstore::KeyValueStore::Service {
 
   grpc::Status Remove(grpc::ServerContext* context, const kvstore::RemoveRequest* request, 
                       kvstore::RemoveReply* response) override;
- private:
+
   KeyValueStore storeinstance_;
 };
 

@@ -4,6 +4,8 @@ package faz;
 
 import "google/protobuf/any.proto";
 
+option go_package = "src/proto/faz";
+
 // Associates this type of event with the given function for future execution by Faz.
 message HookRequest {
   // An arbitrary int that is unique to this type of event

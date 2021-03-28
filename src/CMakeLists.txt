@@ -42,10 +42,10 @@ set(_GRPC_GRPCPP gRPC::grpc++)
 set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 
 # KVStore Proto file
-get_filename_component(kvstore_proto "keyvaluestore.proto" ABSOLUTE)
+get_filename_component(kvstore_proto "proto/keyvaluestore.proto" ABSOLUTE)
 get_filename_component(kvstore_proto_path "${kvstore_proto}" PATH)
 
-get_filename_component(storage_proto "storage.proto" ABSOLUTE)
+get_filename_component(storage_proto "proto/storage.proto" ABSOLUTE)
 get_filename_component(storage_proto_path "${storage_proto}" PATH)
 
 # Generated sources
@@ -88,7 +88,7 @@ add_custom_command(
   DEPENDS "${storage_proto}")
 
 # Caw Proto file
-get_filename_component(caw_proto "caw.proto" ABSOLUTE)
+get_filename_component(caw_proto "proto/caw.proto" ABSOLUTE)
 get_filename_component(caw_proto_path "${caw_proto}" PATH)
 
 # Generated sources
@@ -108,7 +108,7 @@ add_custom_command(
       DEPENDS "${caw_proto}")
 
 # Caw Proto file
-get_filename_component(faz_proto "faz.proto" ABSOLUTE)
+get_filename_component(faz_proto "proto/faz.proto" ABSOLUTE)
 get_filename_component(faz_proto_path "${faz_proto}" PATH)
 
 # Generated sources
@@ -160,11 +160,11 @@ ${faz_proto_srcs} ${faz_grpc_srcs})
 target_link_libraries(kvstore_server_test gtest glog
 ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
 
-add_executable(kvstore_load_test "kvstore_load_test.cc" ${kvstore_proto_srcs} 
+add_executable(kvstore_server_load_test "kvstore_server_load_test.cc" ${kvstore_proto_srcs} 
 ${kvstore_grpc_srcs} "kvstore_client.cc" ${caw_proto_srcs} ${caw_grpc_srcs}
 ${faz_proto_srcs} ${faz_grpc_srcs})
 
-target_link_libraries(kvstore_load_test gtest glog
+target_link_libraries(kvstore_server_load_test gtest glog
 ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
 
 # test caw functionality

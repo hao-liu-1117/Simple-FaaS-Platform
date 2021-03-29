@@ -17,7 +17,6 @@ message HookRequest {
 
 message HookReply {
   // Empty because success/failure is signaled via GRPC status.
-  bool success = 1;
 }
 
 // Unregisters an event of the given type, if registered.  Has no effect if already unregistered.

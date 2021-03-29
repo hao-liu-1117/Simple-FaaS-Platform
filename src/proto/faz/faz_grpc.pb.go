@@ -205,5 +205,5 @@ var FazService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/faz.proto",
+	Metadata: "faz.proto",
 }

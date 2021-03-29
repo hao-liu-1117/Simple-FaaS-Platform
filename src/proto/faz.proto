@@ -40,7 +40,7 @@ message EventReply {
 }
 
 message IsRegisteredRequest {
-  bytes event_function = 1;
+  string event_function = 1;
 }
 
 message IsRegisteredReply {

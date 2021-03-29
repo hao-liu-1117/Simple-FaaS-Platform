@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.26.0
 // 	protoc        v3.14.0
-// source: proto/faz.proto
+// source: faz.proto
 
 package faz
 
@@ -36,7 +36,7 @@ type HookRequest struct {
 func (x *HookRequest) Reset() {
 	*x = HookRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_faz_proto_msgTypes[0]
+		mi := &file_faz_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -49,7 +49,7 @@ func (x *HookRequest) String() string {
 func (*HookRequest) ProtoMessage() {}
 
 func (x *HookRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_faz_proto_msgTypes[0]
+	mi := &file_faz_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -62,7 +62,7 @@ func (x *HookRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HookRequest.ProtoReflect.Descriptor instead.
 func (*HookRequest) Descriptor() ([]byte, []int) {
-	return file_proto_faz_proto_rawDescGZIP(), []int{0}
+	return file_faz_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *HookRequest) GetEventType() int32 {
@@ -83,15 +83,12 @@ type HookReply struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
-
-	// Empty because success/failure is signaled via GRPC status.
-	Success bool `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
 }
 
 func (x *HookReply) Reset() {
 	*x = HookReply{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_faz_proto_msgTypes[1]
+		mi := &file_faz_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -104,7 +101,7 @@ func (x *HookReply) String() string {
 func (*HookReply) ProtoMessage() {}
 
 func (x *HookReply) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_faz_proto_msgTypes[1]
+	mi := &file_faz_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -117,14 +114,7 @@ func (x *HookReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HookReply.ProtoReflect.Descriptor instead.
 func (*HookReply) Descriptor() ([]byte, []int) {
-	return file_proto_faz_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *HookReply) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
+	return file_faz_proto_rawDescGZIP(), []int{1}
 }
 
 // Unregisters an event of the given type, if registered.  Has no effect if already unregistered.
@@ -139,7 +129,7 @@ type UnhookRequest struct {
 func (x *UnhookRequest) Reset() {
 	*x = UnhookRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_faz_proto_msgTypes[2]
+		mi := &file_faz_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -152,7 +142,7 @@ func (x *UnhookRequest) String() string {
 func (*UnhookRequest) ProtoMessage() {}
 
 func (x *UnhookRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_faz_proto_msgTypes[2]
+	mi := &file_faz_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -165,7 +155,7 @@ func (x *UnhookRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnhookRequest.ProtoReflect.Descriptor instead.
 func (*UnhookRequest) Descriptor() ([]byte, []int) {
-	return file_proto_faz_proto_rawDescGZIP(), []int{2}
+	return file_faz_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *UnhookRequest) GetEventType() int32 {
@@ -184,7 +174,7 @@ type UnhookReply struct {
 func (x *UnhookReply) Reset() {
 	*x = UnhookReply{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_faz_proto_msgTypes[3]
+		mi := &file_faz_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -197,7 +187,7 @@ func (x *UnhookReply) String() string {
 func (*UnhookReply) ProtoMessage() {}
 
 func (x *UnhookReply) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_faz_proto_msgTypes[3]
+	mi := &file_faz_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -210,7 +200,7 @@ func (x *UnhookReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnhookReply.ProtoReflect.Descriptor instead.
 func (*UnhookReply) Descriptor() ([]byte, []int) {
-	return file_proto_faz_proto_rawDescGZIP(), []int{3}
+	return file_faz_proto_rawDescGZIP(), []int{3}
 }
 
 // Represents an arriving event of the given type with an arbitrary message payload.
@@ -226,7 +216,7 @@ type EventRequest struct {
 func (x *EventRequest) Reset() {
 	*x = EventRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_faz_proto_msgTypes[4]
+		mi := &file_faz_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -239,7 +229,7 @@ func (x *EventRequest) String() string {
 func (*EventRequest) ProtoMessage() {}
 
 func (x *EventRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_faz_proto_msgTypes[4]
+	mi := &file_faz_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -252,7 +242,7 @@ func (x *EventRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EventRequest.ProtoReflect.Descriptor instead.
 func (*EventRequest) Descriptor() ([]byte, []int) {
-	return file_proto_faz_proto_rawDescGZIP(), []int{4}
+	return file_faz_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *EventRequest) GetEventType() int32 {
@@ -281,7 +271,7 @@ type EventReply struct {
 func (x *EventReply) Reset() {
 	*x = EventReply{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_faz_proto_msgTypes[5]
+		mi := &file_faz_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -294,7 +284,7 @@ func (x *EventReply) String() string {
 func (*EventReply) ProtoMessage() {}
 
 func (x *EventReply) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_faz_proto_msgTypes[5]
+	mi := &file_faz_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -307,7 +297,7 @@ func (x *EventReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EventReply.ProtoReflect.Descriptor instead.
 func (*EventReply) Descriptor() ([]byte, []int) {
-	return file_proto_faz_proto_rawDescGZIP(), []int{5}
+	return file_faz_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *EventReply) GetPayload() *anypb.Any {
@@ -328,7 +318,7 @@ type IsRegisteredRequest struct {
 func (x *IsRegisteredRequest) Reset() {
 	*x = IsRegisteredRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_faz_proto_msgTypes[6]
+		mi := &file_faz_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -341,7 +331,7 @@ func (x *IsRegisteredRequest) String() string {
 func (*IsRegisteredRequest) ProtoMessage() {}
 
 func (x *IsRegisteredRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_faz_proto_msgTypes[6]
+	mi := &file_faz_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -354,7 +344,7 @@ func (x *IsRegisteredRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IsRegisteredRequest.ProtoReflect.Descriptor instead.
 func (*IsRegisteredRequest) Descriptor() ([]byte, []int) {
-	return file_proto_faz_proto_rawDescGZIP(), []int{6}
+	return file_faz_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *IsRegisteredRequest) GetEventFunction() []byte {
@@ -375,7 +365,7 @@ type IsRegisteredReply struct {
 func (x *IsRegisteredReply) Reset() {
 	*x = IsRegisteredReply{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_faz_proto_msgTypes[7]
+		mi := &file_faz_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -388,7 +378,7 @@ func (x *IsRegisteredReply) String() string {
 func (*IsRegisteredReply) ProtoMessage() {}
 
 func (x *IsRegisteredReply) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_faz_proto_msgTypes[7]
+	mi := &file_faz_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -401,7 +391,7 @@ func (x *IsRegisteredReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IsRegisteredReply.ProtoReflect.Descriptor instead.
 func (*IsRegisteredReply) Descriptor() ([]byte, []int) {
-	return file_proto_faz_proto_rawDescGZIP(), []int{7}
+	return file_faz_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *IsRegisteredReply) GetEventType() int32 {
@@ -411,20 +401,18 @@ func (x *IsRegisteredReply) GetEventType() int32 {
 	return 0
 }
 
-var File_proto_faz_proto protoreflect.FileDescriptor
+var File_faz_proto protoreflect.FileDescriptor
 
-var file_proto_faz_proto_rawDesc = []byte{
-	0x0a, 0x0f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x66, 0x61, 0x7a, 0x2e, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x12, 0x03, 0x66, 0x61, 0x7a, 0x1a, 0x19, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x61, 0x6e, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x22, 0x53, 0x0a, 0x0b, 0x48, 0x6f, 0x6f, 0x6b, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x12, 0x1d, 0x0a, 0x0a, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x5f, 0x74, 0x79, 0x70, 0x65, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x05, 0x52, 0x09, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x54, 0x79, 0x70, 0x65, 0x12,
-	0x25, 0x0a, 0x0e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x5f, 0x66, 0x75, 0x6e, 0x63, 0x74, 0x69, 0x6f,
-	0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0d, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x46, 0x75,
-	0x6e, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x25, 0x0a, 0x09, 0x48, 0x6f, 0x6f, 0x6b, 0x52, 0x65,
-	0x70, 0x6c, 0x79, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x22, 0x2e, 0x0a,
+var file_faz_proto_rawDesc = []byte{
+	0x0a, 0x09, 0x66, 0x61, 0x7a, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x03, 0x66, 0x61, 0x7a,
+	0x1a, 0x19, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75,
+	0x66, 0x2f, 0x61, 0x6e, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x53, 0x0a, 0x0b, 0x48,
+	0x6f, 0x6f, 0x6b, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1d, 0x0a, 0x0a, 0x65, 0x76,
+	0x65, 0x6e, 0x74, 0x5f, 0x74, 0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x09,
+	0x65, 0x76, 0x65, 0x6e, 0x74, 0x54, 0x79, 0x70, 0x65, 0x12, 0x25, 0x0a, 0x0e, 0x65, 0x76, 0x65,
+	0x6e, 0x74, 0x5f, 0x66, 0x75, 0x6e, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x0d, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x46, 0x75, 0x6e, 0x63, 0x74, 0x69, 0x6f, 0x6e,
+	0x22, 0x0b, 0x0a, 0x09, 0x48, 0x6f, 0x6f, 0x6b, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x2e, 0x0a,
 	0x0d, 0x55, 0x6e, 0x68, 0x6f, 0x6f, 0x6b, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1d,
 	0x0a, 0x0a, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x5f, 0x74, 0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01,
 	0x28, 0x05, 0x52, 0x09, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x54, 0x79, 0x70, 0x65, 0x22, 0x0d, 0x0a,
@@ -465,19 +453,19 @@ var file_proto_faz_proto_rawDesc = []byte{
 }
 
 var (
-	file_proto_faz_proto_rawDescOnce sync.Once
-	file_proto_faz_proto_rawDescData = file_proto_faz_proto_rawDesc
+	file_faz_proto_rawDescOnce sync.Once
+	file_faz_proto_rawDescData = file_faz_proto_rawDesc
 )
 
-func file_proto_faz_proto_rawDescGZIP() []byte {
-	file_proto_faz_proto_rawDescOnce.Do(func() {
-		file_proto_faz_proto_rawDescData = protoimpl.X.CompressGZIP(file_proto_faz_proto_rawDescData)
+func file_faz_proto_rawDescGZIP() []byte {
+	file_faz_proto_rawDescOnce.Do(func() {
+		file_faz_proto_rawDescData = protoimpl.X.CompressGZIP(file_faz_proto_rawDescData)
 	})
-	return file_proto_faz_proto_rawDescData
+	return file_faz_proto_rawDescData
 }
 
-var file_proto_faz_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_proto_faz_proto_goTypes = []interface{}{
+var file_faz_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_faz_proto_goTypes = []interface{}{
 	(*HookRequest)(nil),         // 0: faz.HookRequest
 	(*HookReply)(nil),           // 1: faz.HookReply
 	(*UnhookRequest)(nil),       // 2: faz.UnhookRequest
@@ -488,7 +476,7 @@ var file_proto_faz_proto_goTypes = []interface{}{
 	(*IsRegisteredReply)(nil),   // 7: faz.IsRegisteredReply
 	(*anypb.Any)(nil),           // 8: google.protobuf.Any
 }
-var file_proto_faz_proto_depIdxs = []int32{
+var file_faz_proto_depIdxs = []int32{
 	8, // 0: faz.EventRequest.payload:type_name -> google.protobuf.Any
 	8, // 1: faz.EventReply.payload:type_name -> google.protobuf.Any
 	0, // 2: faz.FazService.Hook:input_type -> faz.HookRequest
@@ -506,13 +494,13 @@ var file_proto_faz_proto_depIdxs = []int32{
 	0, // [0:2] is the sub-list for field type_name
 }
 
-func init() { file_proto_faz_proto_init() }
-func file_proto_faz_proto_init() {
-	if File_proto_faz_proto != nil {
+func init() { file_faz_proto_init() }
+func file_faz_proto_init() {
+	if File_faz_proto != nil {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_proto_faz_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_faz_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*HookRequest); i {
 			case 0:
 				return &v.state
@@ -524,7 +512,7 @@ func file_proto_faz_proto_init() {
 				return nil
 			}
 		}
-		file_proto_faz_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_faz_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*HookReply); i {
 			case 0:
 				return &v.state
@@ -536,7 +524,7 @@ func file_proto_faz_proto_init() {
 				return nil
 			}
 		}
-		file_proto_faz_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_faz_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UnhookRequest); i {
 			case 0:
 				return &v.state
@@ -548,7 +536,7 @@ func file_proto_faz_proto_init() {
 				return nil
 			}
 		}
-		file_proto_faz_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_faz_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UnhookReply); i {
 			case 0:
 				return &v.state
@@ -560,7 +548,7 @@ func file_proto_faz_proto_init() {
 				return nil
 			}
 		}
-		file_proto_faz_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_faz_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*EventRequest); i {
 			case 0:
 				return &v.state
@@ -572,7 +560,7 @@ func file_proto_faz_proto_init() {
 				return nil
 			}
 		}
-		file_proto_faz_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_faz_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*EventReply); i {
 			case 0:
 				return &v.state
@@ -584,7 +572,7 @@ func file_proto_faz_proto_init() {
 				return nil
 			}
 		}
-		file_proto_faz_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_faz_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*IsRegisteredRequest); i {
 			case 0:
 				return &v.state
@@ -596,7 +584,7 @@ func file_proto_faz_proto_init() {
 				return nil
 			}
 		}
-		file_proto_faz_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_faz_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*IsRegisteredReply); i {
 			case 0:
 				return &v.state
@@ -613,18 +601,18 @@ func file_proto_faz_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_proto_faz_proto_rawDesc,
+			RawDescriptor: file_faz_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_proto_faz_proto_goTypes,
-		DependencyIndexes: file_proto_faz_proto_depIdxs,
-		MessageInfos:      file_proto_faz_proto_msgTypes,
+		GoTypes:           file_faz_proto_goTypes,
+		DependencyIndexes: file_faz_proto_depIdxs,
+		MessageInfos:      file_faz_proto_msgTypes,
 	}.Build()
-	File_proto_faz_proto = out.File
-	file_proto_faz_proto_rawDesc = nil
-	file_proto_faz_proto_goTypes = nil
-	file_proto_faz_proto_depIdxs = nil
+	File_faz_proto = out.File
+	file_faz_proto_rawDesc = nil
+	file_faz_proto_goTypes = nil
+	file_faz_proto_depIdxs = nil
 }

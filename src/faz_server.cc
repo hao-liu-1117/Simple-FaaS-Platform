@@ -31,7 +31,6 @@ grpc::Status FazServer::Hook(grpc::ServerContext* context, const faz::HookReques
   }
   eventmap_[event_type] = event_func;
   typemap_[event_func] = event_type;
-  response->set_success(true);
 
   return grpc::Status::OK;
 }

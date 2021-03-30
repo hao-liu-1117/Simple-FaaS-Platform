@@ -26,15 +26,10 @@ cd src
 
 ./faz_server
 
-# open a new terminal
+# open a new terminal to build and run go-client
 
-# register functions before using caw
-
-./client --hook 1 --event_function registeruser
-./client --hook 2 --event_function caw
-./client --hook 3 --event_function follow
-./client --hook 4 --event_function read
-./client --hook 5 --event_function profile
+cd ../../src/go-client
+go build client.go
 
 # registeruser
 
@@ -74,6 +69,22 @@ cd src
 
 # open a new terminal
 ./kvstore_server_test
+```
+```
+# test kvstore storage
+
+./kvstore_server --store kvstore.dat
+
+# open a new terminal
+./kvstore_server_test
+
+# shut down kvstore server by Ctrl+C
+# restart kvstore server to load data from kvstore.dat
+
+./kvstore_server --store kvstore.dat
+
+# in a new terminal
+./kvstore_server_load_test
 ```
 
 ### Test Caw Functionality

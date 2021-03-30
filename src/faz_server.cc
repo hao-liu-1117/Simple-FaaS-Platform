@@ -25,7 +25,6 @@ grpc::Status FazServer::Hook(grpc::ServerContext* context, const faz::HookReques
                              faz::HookReply* response) {
   int event_type = request->event_type();
   std::string event_func = request->event_function();
-  std::cout << "received" << std::endl;
   if (eventmap_.count(event_type) || typemap_.count(event_func)) {
     // Event already exists.
     return grpc::Status::CANCELLED;

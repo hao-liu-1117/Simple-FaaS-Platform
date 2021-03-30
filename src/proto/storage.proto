@@ -4,8 +4,8 @@ package storage;
 
 message Memory {
   message KVPair {
-    string key = 1;
-    string value = 2;
+    bytes key = 1;
+    bytes value = 2;
   }
   repeated KVPair kv_pairs = 1;
 }

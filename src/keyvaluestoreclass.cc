@@ -49,6 +49,8 @@ void KeyValueStore::Load(KeyValueStore &instance, const std::string &filename) {
     return;
   }
   storage::Memory mem;
+  // Remove initialized counter if data are loaded from file.
+  instance.Remove("caw_count");
   mem.ParseFromIstream(&input);
   int len = mem.kv_pairs_size();
   for (int i = 0; i < len; i++) {

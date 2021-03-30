@@ -26,9 +26,10 @@ cd src
 
 ./faz_server
 
-# open a new terminal and run go-client
+# open a new terminal to build and run go-client
 
 cd ../../src/go-client
+go build client.go
 
 # registeruser
 

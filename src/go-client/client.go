@@ -224,12 +224,12 @@ func main() {
 		return
 	}
 	defer conn.Close()
-	c := faz.NewFazServiceClient(conn)
-	Hook(c, 1, "registeruser")
-	Hook(c, 2, "caw")
-	Hook(c, 3, "follow")
-	Hook(c, 4, "read")
-	Hook(c, 5, "profile")
+	client := faz.NewFazServiceClient(conn)
+	Hook(client, 1, "registeruser")
+	Hook(client, 2, "caw")
+	Hook(client, 3, "follow")
+	Hook(client, 4, "read")
+	Hook(client, 5, "profile")
 
 	// Each command should only execute one command.
 	var cmd_count int = 0
@@ -250,11 +250,11 @@ func main() {
 		return
 	}
 	// Execute command.
-	if *f_registeruser != "" {RegisterHandler(c, *f_registeruser)}
-	if *f_caw != "" {CawHandler(c, *f_user, *f_caw, *f_reply)}
-	if *f_follow != "" {FollowHandler(c, *f_user, *f_follow)}
-	if *f_read != "" {ReadHandler(c, *f_read)}
-	if *f_profile {ProfileHandler(c, *f_user)}
-	if *f_hook != -1 {Hook(c, int32(*f_hook), *f_event_func)}
-	if *f_unhook != -1 {Unhook(c, int32(*f_unhook))}
+	if *f_registeruser != "" {RegisterHandler(client, *f_registeruser)}
+	if *f_caw != "" {CawHandler(client, *f_user, *f_caw, *f_reply)}
+	if *f_follow != "" {FollowHandler(client, *f_user, *f_follow)}
+	if *f_read != "" {ReadHandler(client, *f_read)}
+	if *f_profile {ProfileHandler(client, *f_user)}
+	if *f_hook != -1 {Hook(client, int32(*f_hook), *f_event_func)}
+	if *f_unhook != -1 {Unhook(client, int32(*f_unhook))}
 }

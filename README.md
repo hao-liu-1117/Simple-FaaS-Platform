@@ -3,7 +3,62 @@
 ## 0. Requirements
 * Ubuntu 20.04
 * cmake version required: 3.15 or higher
+```
+# install cmake
+
+sudo apt install -y cmake
+```
 * grpc installed globally
+```
+# grpc setup
+
+export MY_INSTALL_DIR=$HOME/.local
+mkdir -p $MY_INSTALL_DIR
+export PATH="$PATH:$MY_INSTALL_DIR/bin"
+
+# install other required tools
+
+sudo apt install -y build-essential autoconf libtool pkg-config
+
+#  install grpc
+
+git clone --recurse-submodules -b v1.35.0 https://github.com/grpc/grpc
+cd grpc
+mkdir -p cmake/build
+pushd cmake/build
+cmake -DgRPC_INSTALL=ON \
+      -DgRPC_BUILD_TESTS=OFF \
+      -DCMAKE_INSTALL_PREFIX=$MY_INSTALL_DIR \
+      ../..
+make
+make install
+popd
+
+# install protobuf
+
+cd grpc/third_party/protobuf/cmake
+cmake -DCMAKE_PREFIX_PATH=$MY_INSTALL_DIR .
+make
+sudo apt install libprotobuf-dev
+```
+* Go installed globally
+
+```
+# install Go
+
+rm -rf /usr/local/go && tar -C /usr/local -xzf go1.16.2.linux-amd64.tar.gz
+export PATH=$PATH:/usr/local/go/bin
+source ~/.profile
+
+# install Go plugins for protobuf compiler
+
+export GO111MODULE=on  # Enable module mode
+go get google.golang.org/protobuf/cmd/protoc-gen-go \
+       google.golang.org/grpc/cmd/protoc-gen-go-grpc
+
+export PATH="$PATH:$(go env GOPATH)/bin"
+
+```
 
 ## 1. Build
 ```

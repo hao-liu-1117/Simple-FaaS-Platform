@@ -14,6 +14,7 @@ DEFINE_bool(profile, false, "Gets the user’s profile of following and follower
 DEFINE_int32(hook, -1, "Specify event type id that will be hooked with event function.");
 DEFINE_int32(unhook, -1, "Specify event type id that will be unhooked.");
 DEFINE_string(event_function, "", "Specify event function.");
+DEFINE_string(subscribe, "", "Specify a hashtag user want to subscribe");
 
 void RunCommand() {
   CMDClient client(grpc::CreateChannel("0.0.0.0:50000",
@@ -24,6 +25,7 @@ void RunCommand() {
   if (!FLAGS_caw.empty()) cmd_count++;
   if (!FLAGS_follow.empty()) cmd_count++;
   if (!FLAGS_read.empty()) cmd_count++;
+  if (!FLAGS_subscribe.empty()) cmd_count++;
   if (FLAGS_profile) cmd_count++;
   if (FLAGS_hook != -1) cmd_count++;
   if (FLAGS_unhook != -1) cmd_count++;
@@ -67,6 +69,14 @@ void RunCommand() {
       return;
     }
     client.Read(FLAGS_read);
+  }
+  else if (!FLAGS_subscribe.empty()) {
+    // Check if function is registered.
+	if (client.IsRegistered("subscribe") == -1) {
+       std::cout << "subscribe function is not registered" << std::endl;
+	   return;
+	}
+	client.Subscribe(FLAGS_user, FLAGS_subscribe);
   }
   else if (FLAGS_profile) {
     // Check if function is registered.

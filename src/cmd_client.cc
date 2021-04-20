@@ -191,6 +191,15 @@ void CMDClient::Profile(const std::string &username) {
   PrintProfile(username, rep);
 }
 
+void CMDClient::Subscribe(const std::string &username, const std::string &hashtag) {
+  // check is username is empty .
+  if (username.empty()) {
+	  std::cout << "Log in before subscribe" << std::endl;
+	  return;
+  }
+  std::cout << username << " is subscribing " << hashtag << std::endl;
+}
+
 void PrintProfile(const std::string &username, const caw::ProfileReply &rep) {
   std::cout << username << "'s followers: ";
   for (int i = 0; i < rep.followers_size(); i++) {

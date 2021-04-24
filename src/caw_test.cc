@@ -5,6 +5,7 @@
 
 #include "caw.h"
 #include "kvstore_client.h"
+#include "prefix.h"
 
 namespace {
 
@@ -46,6 +47,24 @@ TEST(CawfuncTest, CawTest) {
   result = cawfunc::Caw(request, client);
   ASSERT_EQ("1", result.id());
   ASSERT_EQ("0", result.parent_id());
+}
+
+// Test Caw with hastags text
+TEST(CawfuncTest, CawAndSubscribeWithHashtagTest) {
+  KVStoreClient client(grpc::CreateChannel("0.0.0.0:50001",
+                       grpc::InsecureChannelCredentials()));
+  caw::CawRequest caw_request;
+  caw_request.set_username("user1");
+  caw_request.set_text("Test caw with #hashtag1 and #hashtag2");
+  // not a reply to other caw.
+  caw_request.set_parent_id("");
+  caw::Caw result = cawfunc::Caw(caw_request, client);
+  // Check DB stream_tag2caw_hashtag1
+  std::vector<std::string> keyarr, valarr;
+  keyarr.push_back(prefix::kStream_tag2caws + "hashtag1");
+  keyarr.push_back(prefix::kStream_tag2caws + "hashtag2");
+  client.Get(keyarr, valarr);
+  ASSERT_EQ(2, valarr.size());
 }
 
 // Test cawfunc::Follow and caw::Profile works.
@@ -97,6 +116,15 @@ TEST(CawfuncTest, ReadTest) {
     caw::Caw cur_caw = reply.caws(i);
     ASSERT_EQ(std::to_string(i), cur_caw.id());
   }
+}
+
+// Test function that resolve hashtags from caw text
+TEST(CawfuncTest, ResolveHashtagsTest) {
+  std::string caw_text = "This is a #test #msg";
+  std::vector<std::string> hashtags = cawfunc::ResolveHashtags(caw_text);
+  ASSERT_EQ(2, hashtags.size());
+  ASSERT_EQ("test", hashtags[0]);
+  ASSERT_EQ("msg", hashtags[1]);
 }
 
 } // namespace

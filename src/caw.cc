@@ -1,4 +1,6 @@
 #include <chrono>
+#include <algorithm>
+#include <vector>
 
 #include "caw.h"
 
@@ -25,6 +27,31 @@ bool RegisterUser(const caw::RegisteruserRequest &request,
   // Use kvstore as a set.
   client.Put(prefix::kUser + username, username);
   return reply;
+}
+
+std::vector<std::string> ResolveHashtags(const std::string &text) {
+  std::vector<std::string> hashtags;
+  std::string hashtag = "";
+  bool is_hashtag = false;
+  for (auto const ch : text) {
+    if (ch == ' ') {
+      if (hashtag.length() != 0) {
+        hashtags.push_back(hashtag);
+        hashtag = "";
+        is_hashtag = false;
+      }
+    } else if (ch == '#') {
+      is_hashtag = true;
+    } else if (is_hashtag) {
+      hashtag += ch;
+    }
+  }
+
+  if (hashtag.length() != 0) {
+    hashtags.push_back(hashtag);
+  }
+
+  return hashtags;
 }
 
 caw::Caw Caw(const caw::CawRequest &request,
@@ -75,6 +102,13 @@ caw::Caw Caw(const caw::CawRequest &request,
   // serialize caw to result_str and store in kvstore
   result.SerializeToString(&result_str);
   client.Put(prefix::kCawId + id, result_str);
+  
+  // Resolve hashtag from Caw text
+  std::vector<std::string> hashtags = ResolveHashtags(text);
+  for (auto hashtag : hashtags) {
+    client.Put(prefix::kStream_tag2caws + hashtag, result_str);
+  }
+
   return result;
 }
 
@@ -122,6 +156,24 @@ caw::ProfileReply Profile(const caw::ProfileRequest & request,
     reply.add_following(u_name);
   }
 
+  return reply;
+}
+
+caw::SubscribeReply Subscribe(const caw::SubscribeRequest &request,
+                                             KVStoreClient &client) {
+  std::string username = request.username();
+  std::string hashtag = request.hashtag();
+
+  caw::SubscribeReply reply;
+
+  // Get all caws that contains hastagi
+  std::vector<std::string> keyarr, serialized_caws;
+  keyarr.push_back(prefix::kStream_tag2caws + hashtag);
+  client.Get(keyarr, serialized_caws);
+  for (const auto serialized_caw : serialized_caws) {
+    caw::Caw *new_caw = reply.add_caws();
+    new_caw->ParseFromString(serialized_caw);
+  }
   return reply;
 }
 

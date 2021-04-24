@@ -211,8 +211,8 @@ void CMDClient::Subscribe(const std::string &username, const std::string &hashta
 
   // Request and Printout results
   std::cout << "[" << hashtag << "]" << std::endl;
-  // request for new caws every 200 ms
-  int interval = 200;
+  // request for new caws every 1s
+  int interval = 1000;
   while (true) {    
     // Timestamp for subscribe request, used to filter out old caws
     std::chrono::seconds secs_subscription = std::chrono::duration_cast<std::chrono::seconds>(

@@ -57,6 +57,15 @@ message ProfileRequest {
   string username = 1;
 }
 
+message SubscribeRequest {
+  string username = 1;  // The username of user who would like to subscribe hashtag
+  string hashtag = 2;  // The hashtag uesr subscribe to
+}
+
+message SubscribeReply {
+  repeated Caw caws = 1; // The caws that contains hashtag
+}
+
 message ProfileReply {
   repeated string followers = 1;
   repeated string following = 2;

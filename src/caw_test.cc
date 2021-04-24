@@ -1,17 +1,20 @@
+#include "caw.h"
+
 #include <glog/logging.h>
+
+#include <vector>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-
-#include "caw.h"
 #include "kvstore_client.h"
+#include "prefix.h"
 
 namespace {
 
 // Test cawfunc::RegisterUser works.
 TEST(CawfuncTest, RegisterUserTest) {
-  KVStoreClient client(grpc::CreateChannel("0.0.0.0:50001",
-                       grpc::InsecureChannelCredentials()));
+  KVStoreClient client(
+      grpc::CreateChannel("0.0.0.0:50001", grpc::InsecureChannelCredentials()));
   caw::RegisteruserRequest request;
   request.set_username("user1");
   bool rep = cawfunc::RegisterUser(request, client);
@@ -29,8 +32,8 @@ TEST(CawfuncTest, RegisterUserTest) {
 
 // Test cawfunc::Caw works.
 TEST(CawfuncTest, CawTest) {
-  KVStoreClient client(grpc::CreateChannel("0.0.0.0:50001",
-                       grpc::InsecureChannelCredentials()));
+  KVStoreClient client(
+      grpc::CreateChannel("0.0.0.0:50001", grpc::InsecureChannelCredentials()));
   caw::CawRequest request;
   request.set_username("user1");
   request.set_text("A test caw message.");
@@ -48,10 +51,26 @@ TEST(CawfuncTest, CawTest) {
   ASSERT_EQ("0", result.parent_id());
 }
 
+TEST(CawfuncTest, CawAndSubscribeWithHashtagTest) {
+  KVStoreClient client(
+      grpc::CreateChannel("0.0.0.0:50001", grpc::InsecureChannelCredentials()));
+  caw::CawRequest caw_request;
+  caw_request.set_username("user1");
+  caw_request.set_text("Test caw with #hashtag1 and #hashtag2");
+  // not a reply to other caw.
+  caw_request.set_parent_id("");
+  caw::Caw result = cawfunc::Caw(caw_request, client);
+  // Check DB stream_tag2caw_hashtag1
+  std::vector<std::string> keyarr, valarr;
+  keyarr.push_back(prefix::kStream_tag2caws + "hashtag1");
+  client.Get(keyarr, valarr);
+  ASSERT_EQ(1, valarr.size());
+}
+
 // Test cawfunc::Follow and caw::Profile works.
 TEST(CawfuncTest, FollowProfileTest) {
-  KVStoreClient client(grpc::CreateChannel("0.0.0.0:50001",
-                       grpc::InsecureChannelCredentials()));
+  KVStoreClient client(
+      grpc::CreateChannel("0.0.0.0:50001", grpc::InsecureChannelCredentials()));
   caw::FollowRequest request;
   // user1 follow user2 should be success.
   request.set_username("user1");
@@ -87,11 +106,12 @@ TEST(CawfuncTest, FollowProfileTest) {
 }
 
 TEST(CawfuncTest, ReadTest) {
-  KVStoreClient client(grpc::CreateChannel("0.0.0.0:50001",
-                       grpc::InsecureChannelCredentials()));
+  KVStoreClient client(
+      grpc::CreateChannel("0.0.0.0:50001", grpc::InsecureChannelCredentials()));
   caw::ReadRequest request;
   request.set_caw_id(std::string("0"));
-  caw::ReadReply reply = cawfunc::Read(request, client); // reply caw_id: [0, 1]
+  caw::ReadReply reply =
+      cawfunc::Read(request, client);  // reply caw_id: [0, 1]
   ASSERT_EQ(2, reply.caws_size());
   for (int i = 0; i < reply.caws_size(); i++) {
     caw::Caw cur_caw = reply.caws(i);
@@ -99,11 +119,19 @@ TEST(CawfuncTest, ReadTest) {
   }
 }
 
-} // namespace
+TEST(CawfuncTest, ResolveHashtagsTest) {
+  std::string caw_text = "This is a #test #msg";
+  std::vector<std::string> hashtags = cawfunc::ResolveHashtags(caw_text);
+  ASSERT_EQ(2, hashtags.size());
+  ASSERT_EQ("test", hashtags[0]);
+  ASSERT_EQ("msg", hashtags[1]);
+}
 
-int main (int argc, char** argv) {
-  KVStoreClient client(grpc::CreateChannel("0.0.0.0:50001",
-                       grpc::InsecureChannelCredentials()));
+}  // namespace
+
+int main(int argc, char** argv) {
+  KVStoreClient client(
+      grpc::CreateChannel("0.0.0.0:50001", grpc::InsecureChannelCredentials()));
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

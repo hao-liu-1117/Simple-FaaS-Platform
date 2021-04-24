@@ -1,6 +1,8 @@
-#include <chrono>
-
 #include "caw.h"
+
+#include <algorithm>
+#include <chrono>
+#include <vector>
 
 #include "prefix.h"
 
@@ -14,7 +16,7 @@ std::unordered_map<std::string, caw::Caw> cawmap;
 namespace cawfunc {
 
 bool RegisterUser(const caw::RegisteruserRequest &request,
-                                    KVStoreClient &client) {
+                  KVStoreClient &client) {
   std::string username = request.username();
   bool reply = true;
   // Check if user already exists.
@@ -27,8 +29,32 @@ bool RegisterUser(const caw::RegisteruserRequest &request,
   return reply;
 }
 
-caw::Caw Caw(const caw::CawRequest &request,
-             KVStoreClient &client) {
+std::vector<std::string> ResolveHashtags(const std::string &text) {
+  std::vector<std::string> hashtags;
+  std::string hashtag = "";
+  bool is_hashtag = false;
+  for (auto const ch : text) {
+    if (ch == ' ') {
+      if (hashtag.length() != 0) {
+        hashtags.push_back(hashtag);
+        hashtag = "";
+        is_hashtag = false;
+      }
+    } else if (ch == '#') {
+      is_hashtag = true;
+    } else if (is_hashtag) {
+      hashtag += ch;
+    }
+  }
+
+  if (hashtag.length() != 0) {
+    hashtags.push_back(hashtag);
+  }
+
+  return hashtags;
+}
+
+caw::Caw Caw(const caw::CawRequest &request, KVStoreClient &client) {
   std::string username = request.username();
   std::string text = request.text();
   std::string parent_id = request.parent_id();
@@ -42,7 +68,7 @@ caw::Caw Caw(const caw::CawRequest &request,
 
   if (!parent_id.empty()) {
     caw::Caw parent_caw = GetCawWithCawId(parent_id, client);
-    if (parent_caw.id()=="") {
+    if (parent_caw.id() == "") {
       // Parent caw does not exist.
       // parent_id == -1 stands for invalid parent_id. Caw will not be created.
       result.set_parent_id("-1");
@@ -54,15 +80,14 @@ caw::Caw Caw(const caw::CawRequest &request,
   std::string id = GetNextCawId(client);
 
   std::chrono::seconds secs = std::chrono::duration_cast<std::chrono::seconds>(
-    std::chrono::system_clock::now().time_since_epoch()
-  );
-  std::chrono::microseconds usecs = std::chrono::duration_cast<std::chrono::microseconds>(
-    std::chrono::system_clock::now().time_since_epoch()
-  );
+      std::chrono::system_clock::now().time_since_epoch());
+  std::chrono::microseconds usecs =
+      std::chrono::duration_cast<std::chrono::microseconds>(
+          std::chrono::system_clock::now().time_since_epoch());
 
   // store reply caw_id for parent caw.
   client.Put(prefix::kCawSonId + parent_id, id);
-  
+
   // Pack those info to Caw and return.
   result.set_username(username);
   result.set_text(text);
@@ -75,11 +100,17 @@ caw::Caw Caw(const caw::CawRequest &request,
   // serialize caw to result_str and store in kvstore
   result.SerializeToString(&result_str);
   client.Put(prefix::kCawId + id, result_str);
+
+  // Resolve hashtag from Caw text
+  std::vector<std::string> hashtags = ResolveHashtags(text);
+  for (auto hashtag : hashtags) {
+    client.Put(prefix::kStream_tag2caws + hashtag, result_str);
+  }
+
   return result;
 }
 
-bool Follow(const caw::FollowRequest &request,
-                        KVStoreClient &client) {
+bool Follow(const caw::FollowRequest &request, KVStoreClient &client) {
   std::string username = request.username();
   std::string to_follow = request.to_follow();
   bool reply = true;
@@ -93,14 +124,13 @@ bool Follow(const caw::FollowRequest &request,
   return reply;
 }
 
-caw::ReadReply Read(const caw::ReadRequest &request,
-                    KVStoreClient &client) {
+caw::ReadReply Read(const caw::ReadRequest &request, KVStoreClient &client) {
   caw::ReadReply reply;
   ReadThread(request.caw_id(), reply, client);
   return reply;
 }
 
-caw::ProfileReply Profile(const caw::ProfileRequest & request,
+caw::ProfileReply Profile(const caw::ProfileRequest &request,
                           KVStoreClient &client) {
   std::string username = request.username();
   // keyarr/valarr used by kvstore client to fetch data into valarr.
@@ -122,6 +152,24 @@ caw::ProfileReply Profile(const caw::ProfileRequest & request,
     reply.add_following(u_name);
   }
 
+  return reply;
+}
+
+caw::SubscribeReply Subscribe(const caw::SubscribeRequest &request,
+                              KVStoreClient &client) {
+  std::string username = request.username();
+  std::string hashtag = request.hashtag();
+
+  caw::SubscribeReply reply;
+
+  // Get all caws that contains hastagi
+  std::vector<std::string> keyarr, serialized_caws;
+  keyarr.push_back(prefix::kStream_tag2caws + hashtag);
+  client.Get(keyarr, serialized_caws);
+  for (const auto serialized_caw : serialized_caws) {
+    caw::Caw *new_caw = reply.add_caws();
+    new_caw->ParseFromString(serialized_caw);
+  }
   return reply;
 }
 
@@ -148,7 +196,7 @@ std::string GetNextCawId(KVStoreClient &client) {
   return caw_id;
 }
 
-void ReadThread(const std::string &caw_id, caw::ReadReply &reply, 
+void ReadThread(const std::string &caw_id, caw::ReadReply &reply,
                 KVStoreClient &client) {
   // Put current caw into reply.
   caw::Caw cur_caw = GetCawWithCawId(caw_id, client);
@@ -160,13 +208,11 @@ void ReadThread(const std::string &caw_id, caw::ReadReply &reply,
   put_caw->set_id(cur_caw.id());
   put_caw->set_parent_id(cur_caw.parent_id());
   put_caw->mutable_timestamp()->set_seconds(
-    cur_caw.mutable_timestamp()->seconds()
-  );
+      cur_caw.mutable_timestamp()->seconds());
   put_caw->mutable_timestamp()->set_useconds(
-    cur_caw.mutable_timestamp()->useconds()
-  );
-  
-  // If other caws replied to this one, 
+      cur_caw.mutable_timestamp()->useconds());
+
+  // If other caws replied to this one,
   // put them into caw::ReadReply recursively.
   std::vector<std::string> keyarr, valarr;
   keyarr.push_back(prefix::kCawSonId + caw_id);
@@ -176,15 +222,14 @@ void ReadThread(const std::string &caw_id, caw::ReadReply &reply,
   }
 }
 
-caw::Caw GetCawWithCawId(const std::string &caw_id, 
-                         KVStoreClient &client) {
+caw::Caw GetCawWithCawId(const std::string &caw_id, KVStoreClient &client) {
   caw::Caw cur_caw;
   // Get caw data from kvstore
   std::vector<std::string> keyarr, valarr;
   keyarr.push_back(prefix::kCawId + caw_id);
   client.Get(keyarr, valarr);
   if (!valarr.empty()) {
-    // parse from serialized caw 
+    // parse from serialized caw
     cur_caw.ParseFromString(valarr[0]);
   }
 
@@ -192,21 +237,21 @@ caw::Caw GetCawWithCawId(const std::string &caw_id,
 }
 
 faz::EventReply RegisterUserHelper(const faz::EventRequest *event_req,
-                                    KVStoreClient &client) {
+                                   KVStoreClient &client) {
   caw::RegisteruserRequest request;
   faz::EventReply event_rep;
   event_req->payload().UnpackTo(&request);
   bool suc = RegisterUser(request, client);
   caw::RegisteruserRequest rep;
   if (suc) {
-    rep.set_username("success"); // Unempty string indicate success.
+    rep.set_username("success");  // Unempty string indicate success.
   }
   (event_rep.mutable_payload())->PackFrom(rep);
   return event_rep;
 }
 
-faz::EventReply CawHelper(const faz::EventRequest *event_req, 
-                           KVStoreClient &client) {
+faz::EventReply CawHelper(const faz::EventRequest *event_req,
+                          KVStoreClient &client) {
   caw::CawRequest request;
   faz::EventReply event_rep;
   event_req->payload().UnpackTo(&request);
@@ -215,22 +260,22 @@ faz::EventReply CawHelper(const faz::EventRequest *event_req,
   return event_rep;
 }
 
-faz::EventReply FollowHelper(const faz::EventRequest *event_req, 
-                              KVStoreClient &client) {
+faz::EventReply FollowHelper(const faz::EventRequest *event_req,
+                             KVStoreClient &client) {
   caw::FollowRequest request;
   faz::EventReply event_rep;
   (event_req->payload()).UnpackTo(&request);
   bool suc = Follow(request, client);
   caw::RegisteruserRequest rep;
   if (suc) {
-    rep.set_username("success"); // Unempty string indicate success.
+    rep.set_username("success");  // Unempty string indicate success.
   }
   (event_rep.mutable_payload())->PackFrom(rep);
   return event_rep;
 }
 
 faz::EventReply ReadHelper(const faz::EventRequest *event_req,
-                            KVStoreClient &client) {
+                           KVStoreClient &client) {
   caw::ReadRequest request;
   faz::EventReply event_rep;
   event_req->payload().UnpackTo(&request);
@@ -240,7 +285,7 @@ faz::EventReply ReadHelper(const faz::EventRequest *event_req,
 }
 
 faz::EventReply ProfileHelper(const faz::EventRequest *event_req,
-                               KVStoreClient &client) {
+                              KVStoreClient &client) {
   caw::ProfileRequest request;
   faz::EventReply event_rep;
   event_req->payload().UnpackTo(&request);
@@ -248,4 +293,4 @@ faz::EventReply ProfileHelper(const faz::EventRequest *event_req,
   (event_rep.mutable_payload())->PackFrom(reply);
   return event_rep;
 }
-} // namesapce cawfunc
+}  // namespace cawfunc

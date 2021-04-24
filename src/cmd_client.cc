@@ -1,3 +1,5 @@
+#include <chrono>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 
@@ -197,7 +199,48 @@ void CMDClient::Subscribe(const std::string &username, const std::string &hashta
 	  std::cout << "Log in before subscribe" << std::endl;
 	  return;
   }
+
+  // Timestamp for subscription, used to filter out old caws
+  std::chrono::seconds secs_subscription = std::chrono::duration_cast<std::chrono::seconds>(
+    std::chrono::system_clock::now().time_since_epoch()
+  );
+
   std::cout << username << " is subscribing " << hashtag << std::endl;
+  // Construct caw::SubscribeRequest
+  caw::SubscribeRequest req;
+  req.set_username(username);
+  req.set_hashtag(hashtag);
+  // Pack to faz::EventRequest
+  faz::EventRequest event_req;
+  int event_type = IsRegistered("subscribe");
+  event_req.set_event_type(event_type);
+  (event_req.mutable_payload())->PackFrom(req);
+  // request for new caws
+  faz::EventReply event_rep = fazclient_.Event(event_req);
+  caw::SubscribeReply rep;
+  event_rep.payload().UnpackTo(&rep);
+ 
+  // Printout results
+  std::cout << "[" << hashtag << "]" << std::endl;
+  // request for new caws every 200 ms
+  int interval = 200;
+  while (true) {    
+    faz::EventReply event_rep = fazclient_.Event(event_req);
+    caw::SubscribeReply rep;
+    event_rep.payload().UnpackTo(&rep);  
+    for (int i = 0; i < rep.caws_size(); i++) {
+      caw::Caw cur_caw = rep.caws(i);
+      if (cur_caw.timestamp().seconds() < secs_subscription.count()) {
+        // older caws
+        continue;
+      }
+      std::cout << "{"<< hashtag << "}" << 
+            "[" << cur_caw.id() << "] " << 
+            cur_caw.username() << " : " << 
+            cur_caw.text() << std::endl;
+    }
+  usleep(interval * 1000);
+  }
 }
 
 void PrintProfile(const std::string &username, const caw::ProfileReply &rep) {

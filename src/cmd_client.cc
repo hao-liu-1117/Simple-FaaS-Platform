@@ -198,11 +198,6 @@ void CMDClient::Subscribe(const std::string &username, const std::string &hashta
 	  return;
   }
 
-  // Timestamp for subscription, used to filter out old caws
-  std::chrono::seconds secs_subscription = std::chrono::duration_cast<std::chrono::seconds>(
-    std::chrono::system_clock::now().time_since_epoch()
-  );
-
   std::cout << username << " is subscribing " << hashtag << std::endl;
   // Construct caw::SubscribeRequest
   caw::SubscribeRequest req;
@@ -213,16 +208,16 @@ void CMDClient::Subscribe(const std::string &username, const std::string &hashta
   int event_type = IsRegistered("subscribe");
   event_req.set_event_type(event_type);
   (event_req.mutable_payload())->PackFrom(req);
-  // request for new caws
-  faz::EventReply event_rep = fazclient_.Event(event_req);
-  caw::SubscribeReply rep;
-  event_rep.payload().UnpackTo(&rep);
 
-  // Printout results
+  // Request and Printout results
   std::cout << "[" << hashtag << "]" << std::endl;
   // request for new caws every 200 ms
   int interval = 200;
   while (true) {    
+    // Timestamp for subscribe request, used to filter out old caws
+    std::chrono::seconds secs_subscription = std::chrono::duration_cast<std::chrono::seconds>(
+      std::chrono::system_clock::now().time_since_epoch()
+    );
     faz::EventReply event_rep = fazclient_.Event(event_req);
     caw::SubscribeReply rep;
     event_rep.payload().UnpackTo(&rep);  

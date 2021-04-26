@@ -53,6 +53,15 @@ message ReadReply {
   repeated Caw caws = 1;  // The requested caw thread.
 }
 
+message SubscribeRequest {
+  string username = 1;  // The username of user who would like to subscribe hashtag
+  string hashtag = 2;  // The hashtag uesr subscribe to
+}
+
+message SubscribeReply {
+  repeated Caw caws = 1; // The caws that contains hashtag
+}
+
 message ProfileRequest {
   string username = 1;
 }

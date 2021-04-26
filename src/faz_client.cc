@@ -1,6 +1,7 @@
 #include <glog/logging.h>
 
 #include "faz_client.h"
+#include "caw.h"
 
 bool FazClient::Hook(const int event_type, const std::string &funcstr) {
   grpc::ClientContext context;
@@ -34,6 +35,23 @@ faz::EventReply FazClient::Event(const faz::EventRequest &request) {
   faz::EventReply reply;
   grpc::Status status = stub_->Event(&context, request, &reply);
   return reply;
+}
+
+grpc::Status FazClient::Subscribe(const faz::EventRequest &request) {
+  grpc::ClientContext context;
+  faz::EventReply reply;
+  std::unique_ptr<grpc::ClientReader<faz::EventReply>> reader(
+                  stub_->Subscribe(&context, request));
+  // Keep reading reply for up-to-date caw
+  while (reader->Read(&reply)) {
+    caw::Caw cur_caw;
+    reply.payload().UnpackTo(&cur_caw);
+    std::cout << "[" << cur_caw.id() << "] " << 
+          cur_caw.username() << " : " << 
+          cur_caw.text() <<
+          std::endl;
+  }
+  return reader->Finish();
 }
 
 int FazClient::IsRegistered(const std::string &funcstr) {

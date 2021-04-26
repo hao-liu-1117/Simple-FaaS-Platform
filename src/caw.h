@@ -32,10 +32,6 @@ caw::ReadReply Read(const caw::ReadRequest &request, KVStoreClient &client);
 // Return user's following and followers.
 caw::ProfileReply Profile(const caw::ProfileRequest & request, KVStoreClient &client);
 
-// Return caws that have hashtag
-caw::SubscribeReply Subscribe(const caw::SubscribeRequest &request,
-                                            KVStoreClient &client);
-
 bool UserExists(const std::string &username, KVStoreClient &client);
 
 // Assign caw_id as current count of caws.
@@ -60,7 +56,6 @@ faz::EventReply CawHelper(const faz::EventRequest *event_req, KVStoreClient &cli
 faz::EventReply FollowHelper(const faz::EventRequest *event_req, KVStoreClient &client);
 faz::EventReply ReadHelper(const faz::EventRequest *event_req, KVStoreClient &client);
 faz::EventReply ProfileHelper(const faz::EventRequest *event_req, KVStoreClient &client);
-
 } // namespace cawfunc
 
 #endif

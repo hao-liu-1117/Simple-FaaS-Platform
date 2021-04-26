@@ -20,8 +20,6 @@ namespace prefix {
   const std::string kCawUSeconds = std::string("cawuseconds_"); // (cawuseconds_ + caw_id) -- timestamp useconds
 
   const std::string kEventType = std::string("event_"); // (event_ + event_id) -- functions
-  // prefix for Stream 
-  const std::string kStream_tag2caws = std::string("stream_tag2caws_"); // (stream_tag2caws_hashtag) -- set of serilized caws that contains hashtag
 } // namespace prefix
 
 #endif

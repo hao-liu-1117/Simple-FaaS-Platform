@@ -28,7 +28,10 @@ class FazClient {
   int IsRegistered(const std::string &funcstr);
 
   faz::EventReply Event(const faz::EventRequest &request);
- private:
+
+  // subscribe request to FazServer
+  grpc::Status Subscribe(const faz::EventRequest &request);
+private:
   // Client sends request using stub and waits for response.
   std::unique_ptr<faz::FazService::Stub> stub_;
 };

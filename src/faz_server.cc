@@ -13,6 +13,8 @@
 #include "faz_server.h"
 #include "prefix.h"
 
+#include <string>
+
 FazServer::FazServer(std::shared_ptr<grpc::Channel> channel) : kvclient_(channel), map_mutex_() {
   // Create function map.
   funcmap_["registeruser"] = cawfunc::RegisterUserHelper;
@@ -50,31 +52,6 @@ grpc::Status FazServer::Unhook(grpc::ServerContext* context, const faz::UnhookRe
   return grpc::Status::OK;
 }
 
-// TODO: Add test
-std::vector<std::string> FazServer::ResolveHashtags(const std::string &text) {
-  std::vector<std::string> hashtags;
-  std::string hashtag = "";
-  bool is_hashtag = false;
-  for (auto const ch : text) {
-    if (ch == ' ') {
-      if (hashtag.length() != 0) {
-        hashtags.push_back(hashtag);
-        hashtag = "";
-        is_hashtag = false;
-      }
-    } else if (ch == '#') {
-      is_hashtag = true;
-    } else if (is_hashtag) {
-      hashtag += ch;
-    }
-  }
-
-  if (hashtag.length() != 0) {
-    hashtags.push_back(hashtag);
-  }
-
-  return hashtags;
-}
 
 void FazServer::streams_broadcast(const std::vector<std::string> &hashtags,
                                         const faz::EventReply* response) {
@@ -110,7 +87,7 @@ grpc::Status FazServer::Event(grpc::ServerContext* context, const faz::EventRequ
     caw::Caw cur_caw; 
     response->payload().UnpackTo(&cur_caw);
     std::string caw_text = cur_caw.text();
-    std::vector<std::string> hashtags = FazServer::ResolveHashtags(caw_text);
+    std::vector<std::string> hashtags = util::ResolveHashtags(caw_text);
     FazServer::streams_broadcast(hashtags, response);
   }
   return grpc::Status::OK;

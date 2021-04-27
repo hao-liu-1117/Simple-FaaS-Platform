@@ -107,6 +107,9 @@ go build client.go
 # profile
 
 ./client --profile --user <username>
+
+# subscribe
+./client --subscribe <hashtag>
 ```
 
 ### Test KVStore
@@ -150,4 +153,11 @@ cd src
 
 # open a new terminal
 ./caw_test
+```
+
+### Test Utils
+```
+cd src
+
+./util_test
 ```

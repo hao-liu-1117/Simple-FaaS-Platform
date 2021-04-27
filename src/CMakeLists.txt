@@ -188,3 +188,8 @@ add_executable(client "run_cmd_client.cc" "cmd_client.cc" "faz_client.cc" ${faz_
 "kvstore_client.cc" ${kvstore_proto_srcs} ${kvstore_grpc_srcs} "caw.cc" ${caw_proto_srcs} ${caw_grpc_srcs})
 
 target_link_libraries(client ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF} gtest glog gflags)
+
+# test util
+add_executable(util_test "util_test.cc")
+
+target_link_libraries(util_test gtest glog)

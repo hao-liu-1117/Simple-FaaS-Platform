@@ -17,9 +17,6 @@ namespace cawfunc {
 // Return true if register success, false if failed.
 bool RegisterUser(const caw::RegisteruserRequest &request, KVStoreClient &client);
 
-// Resolve hashtags from caw text
-std::vector<std::string> ResolveHashtags(const std::string &text);
-
 // Create a new caw and return caw_id.
 caw::Caw Caw(const caw::CawRequest &request, KVStoreClient &client);
 

@@ -9,6 +9,7 @@
 #include "caw.h"
 #include "faz.grpc.pb.h"
 #include "kvstore_client.h"
+#include "util.cc"
 
 // Faz Server hook/unhook functions and execute 
 // functions through FazServer::Event().
@@ -31,10 +32,7 @@ class FazServer final : public faz::FazService::Service {
 
   grpc::Status IsRegistered(grpc::ServerContext* context, const faz::IsRegisteredRequest* request,
                             faz::IsRegisteredReply* response) override;
-
  private:
-  // Resolve Hashtag from caw text
-  std::vector<std::string> ResolveHashtags(const std::string &text);
   // Broadcast new caw to all subscriber
   void streams_broadcast(const std::vector<std::string> &hashtags, const faz::EventReply* response);
   // register subscriber to hashtag

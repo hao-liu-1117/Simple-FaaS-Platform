@@ -191,7 +191,7 @@ void CMDClient::Profile(const std::string &username) {
   PrintProfile(username, rep);
 }
 
-void CMDClient::Subscribe(const std::string &username, const std::string &hashtag) {
+void CMDClient::Subscribe(const std::string &hashtag) {
   // Construct caw::SubscribeRequest
   caw::SubscribeRequest req;
   req.set_hashtag(hashtag);

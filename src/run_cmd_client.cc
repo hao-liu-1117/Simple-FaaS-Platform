@@ -72,11 +72,11 @@ void RunCommand() {
   }
   else if (!FLAGS_subscribe.empty()) {
     // Check if function is registered.
-	if (client.IsRegistered("subscribe") == -1) {
+	  if (client.IsRegistered("subscribe") == -1) {
        std::cout << "subscribe function is not registered" << std::endl;
-	   return;
-	}
-	client.Subscribe(FLAGS_user, FLAGS_subscribe);
+	     return;
+	  }
+	  client.Subscribe(FLAGS_subscribe);
   }
   else if (FLAGS_profile) {
     // Check if function is registered.

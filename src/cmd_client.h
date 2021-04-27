@@ -37,7 +37,7 @@ class CMDClient {
 
   void Profile(const std::string &username);
 
-  void Subscribe(const std::string &username, const std::string &hastag);
+  void Subscribe(const std::string &hashtag);
 
   int IsRegistered(const std::string &funcstr);
 

@@ -9,10 +9,11 @@
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
 
+#include "caw.h"
 #include "faz_server.h"
 #include "prefix.h"
 
-FazServer::FazServer(std::shared_ptr<grpc::Channel> channel) : kvclient_(channel) {
+FazServer::FazServer(std::shared_ptr<grpc::Channel> channel) : kvclient_(channel), map_mutex_() {
   // Create function map.
   funcmap_["registeruser"] = cawfunc::RegisterUserHelper;
   funcmap_["caw"] = cawfunc::CawHelper;
@@ -49,6 +50,45 @@ grpc::Status FazServer::Unhook(grpc::ServerContext* context, const faz::UnhookRe
   return grpc::Status::OK;
 }
 
+// TODO: Add test
+std::vector<std::string> FazServer::ResolveHashtags(const std::string &text) {
+  std::vector<std::string> hashtags;
+  std::string hashtag = "";
+  bool is_hashtag = false;
+  for (auto const ch : text) {
+    if (ch == ' ') {
+      if (hashtag.length() != 0) {
+        hashtags.push_back(hashtag);
+        hashtag = "";
+        is_hashtag = false;
+      }
+    } else if (ch == '#') {
+      is_hashtag = true;
+    } else if (is_hashtag) {
+      hashtag += ch;
+    }
+  }
+
+  if (hashtag.length() != 0) {
+    hashtags.push_back(hashtag);
+  }
+
+  return hashtags;
+}
+
+void FazServer::streams_broadcast(const std::vector<std::string> &hashtags,
+                                        const faz::EventReply* response) {
+    const std::lock_guard<std::mutex> lock(map_mutex_);
+    for (auto const hashtag : hashtags) {
+      if (streammap_.find(hashtag) != streammap_.end()) {
+        auto streams = streammap_[hashtag];
+        for (auto stream = streams.begin(); stream != streams.end(); stream++) {
+          (*stream)->Write(*(response));
+        }
+      }
+    }
+}
+
 grpc::Status FazServer::Event(grpc::ServerContext* context, const faz::EventRequest* request,
                               faz::EventReply* response) {
   int event_type = request->event_type();
@@ -60,10 +100,48 @@ grpc::Status FazServer::Event(grpc::ServerContext* context, const faz::EventRequ
   }
   // execute event
   faz::EventReply event_rep = funcmap_[funcstr](request, kvclient_);
-
+  
   google::protobuf::Any *any = new google::protobuf::Any(event_rep.payload());
   response->set_allocated_payload(any);
 
+  // Check whether New caw contain any hashtag
+  // If does, write to all corresponding serverwriter
+  if ( funcstr == "caw" ) {
+    caw::Caw cur_caw; 
+    response->payload().UnpackTo(&cur_caw);
+    std::string caw_text = cur_caw.text();
+    std::vector<std::string> hashtags = FazServer::ResolveHashtags(caw_text);
+    FazServer::streams_broadcast(hashtags, response);
+  }
+  return grpc::Status::OK;
+}
+
+void FazServer::streams_register(const std::string &hashtag, grpc::ServerWriter<faz::EventReply>* writer) {
+  const std::lock_guard<std::mutex> lock(map_mutex_);
+  if (streammap_.find(hashtag) == streammap_.end()) {
+    streammap_[hashtag] = {writer};
+  } else {
+    streammap_[hashtag].push_back(writer);
+  }
+}
+
+grpc::Status FazServer::Subscribe(grpc::ServerContext* context, const faz::EventRequest* request,
+                                  grpc::ServerWriter<faz::EventReply>* writer){
+  
+  int event_type = request->event_type();
+  // match event_type to function
+  std::string funcstr = GetFunctionStr(event_type);
+  if (funcstr.empty()) {
+    // no such event_type
+    return grpc::Status::CANCELLED;
+  }
+  
+  // expose hashtag from SubscribeRequest
+  caw::SubscribeRequest subscribe_req;
+  request->payload().UnpackTo(&subscribe_req);
+  std::string hashtag = subscribe_req.hashtag();
+  FazServer::streams_register(hashtag, writer);
+  while(true) {} // keep streaming 
   return grpc::Status::OK;
 }
 

@@ -1,4 +1,4 @@
-# csci499_hao-liu-1117
+# Simple FaaS Platform
 
 ## 0. Requirements
 * Ubuntu 20.04

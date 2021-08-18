@@ -1,5 +1,12 @@
 # Simple FaaS Platform
 
+In this project, we build a simple FaaS (Function as a Service) platform called *Faz*. On top of *Faz* build the infrastructure for a social network platform we’ll call *Caw*.
+
+There are three keycomponents:
+* ***Faz***: Responsible for function registration and management. An execution layer is needed in *Faz* to receive requests and execute them simultaneously. A key-value store abstraction that can enable storage and retrieval of data of functions that are being executed.
+* ***Key Value Store***: A key-value store service that exposes put/get/remove functionality for use by Faz.
+* ***Caw***: Handler functions for Caw requests (that live inside/run inside of Faz) that each make appropriate requests to the key-value store to put or get data and return the appropriate information to users. A C++ Caw frontend tool that enables a user to register, post new/reply to caws, follow other users, and read caw threads.
+
 ## 0. Requirements
 * Ubuntu 20.04
 * cmake version required: 3.15 or higher
